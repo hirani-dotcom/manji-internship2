@@ -13,11 +13,7 @@ export default function Login() {
     return (
         <div>
             <h1>Login Page</h1>
-            {user ? (
-                <ForYou />
-            ) : (
-                <AuthForm mode="signin" />
-            )}
+            {user ? <ForYou /> : <AuthForm mode="signin" />}
         </div>
     );
 }

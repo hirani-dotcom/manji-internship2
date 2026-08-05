@@ -1,30 +1,119 @@
-import React from "react";
-import "../style.css";
-import Layout from "@/components/Layout";
-import { FaMagnifyingGlass } from "react-icons/fa6";
+"use client";
+
+import { useState } from "react";
+import { FaMagnifyingGlass, FaRegBookmark, FaPencil } from "react-icons/fa6";
+import { GiHamburgerMenu } from "react-icons/gi";
+import { IoHomeOutline } from "react-icons/io5";
 
 export default function page() {
+    const [sidebarOpen, setSidebarOpen] = useState(false);
+
     return (
-        <Layout>
-            <div className="">
-              <div className="">
-                    <figure>
-                        <img src="logo" alt="" />
-                    </figure>
-                    <div className="right-0">
-                        <div>
-                          <div className="bg-gray-200 flex items-center m-auto p-2 rounded-full w-72">
-                            <input
-                              type="text"
-                              className="w-66"
-                              placeholder=" Search for books ..." />
-                            <FaMagnifyingGlass />
-                          </div>
-                        </div>
+        <div className="flex min-h-screen bg-white">
+            {/* Sidebar (desktop) */}
+            <aside className="hidden md:fixed md:top-0 md:left-0 md:h-full md:w-56 md:bg-gray-100 md:text-gray-900 md:p-4 md:block">
+                <img src="/logo.png" alt="Logo" className="mb-8" />
+                <ul className="space-y-8">
+                    <li>
+                        <a href="#" className="hover:underline">
+                            <IoHomeOutline className="inline mr-2" /> For You
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" className="hover:underline">
+                            <FaRegBookmark className="inline mr-2" /> My Library
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" className="cursor-not-allowed">
+                            <FaPencil className="inline mr-2" /> Highlights
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" className="cursor-not-allowed">
+                            <FaMagnifyingGlass className="inline mr-2" /> Search
+                        </a>
+                    </li>
+                </ul>
+            </aside>
+
+            {/* Sidebar (mobile overlay) */}
+            {sidebarOpen && (
+                <div className="fixed inset-0 z-50 flex">
+                    {/* Overlay background */}
+                    <div
+                        className="fixed inset-0 bg-black bg-opacity-50"
+                        onClick={() => setSidebarOpen(false)}
+                    ></div>
+
+                    {/* Sidebar panel */}
+                    <div className="relative z-50 w-56 bg-gray-100 text-gray-700 p-4">
+                        <button
+                            className="mb-4 text-gray-700"
+                            onClick={() => setSidebarOpen(false)}
+                        >
+                            ✕ Close
+                        </button>
+                        <ul className="space-y-4">
+                            <li>
+                                <a href="#" className="hover:underline">
+                                    For You
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" className="hover:underline">
+                                    My Library
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" className="cursor-not-allowed">
+                                    Highlights
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" className="cursor-not-allowed">
+                                    Search
+                                </a>
+                            </li>
+                        </ul>
                     </div>
                 </div>
-                Selected Just For You
+            )}
+
+            {/* Main content area */}
+            <div className="flex-1 md:ml-56">
+                {/* Top bar */}
+                <header className="sticky top-0 h-20 bg-white shadow p-4 flex items-center gap-4">
+                    {/* Mobile menu button */}
+                    <button
+                        className="md:hidden p-2 bg-gray-300 text-gray-900 rounded"
+                        onClick={() => setSidebarOpen(true)}
+                    >
+                        <GiHamburgerMenu />
+                    </button>
+
+                    {/* Search input */}
+                    <div className="fixed right-20">
+                        <FaMagnifyingGlass className="absolute left-3 top-2.5 h-5 w-5 text-black-100" />
+                        <input
+                            type="text"
+                            placeholder="Search for books"
+                            className="pl-10 w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        />
+                    </div>
+                </header>
+
+                {/* Page content */}
+                <main className="p-6 text-center">
+                    <h1 className="text-2xl font-bold mb-4">
+                        Selected Just For You
+                    </h1>
+                    <p>
+                        On desktop, the sidebar is fixed on the left. On mobile,
+                        use the menu button to open it as an overlay.
+                    </p>
+                </main>
             </div>
-        </Layout>
+        </div>
     );
 }
