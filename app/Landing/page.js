@@ -14,11 +14,11 @@ export default function Home() {
                         <img className="nav__img" src="/logo.png" alt="logo" />
                     </figure>
                     <ul className="nav__list--wrapper">
-                        <Link href={"/login"}>
+                        <a href="/login">
                             <li className="nav__list nav__list--login">
                                 Login
                             </li>
-                        </Link>
+                        </a>
                         <li className="nav__list nav__list--mobile">About</li>
                         <li className="nav__list nav__list--mobile">Contact</li>
                         <li className="nav__list nav__list--mobile">Help</li>
@@ -42,9 +42,10 @@ export default function Home() {
                                     <br className="remove--tablet" />
                                     and even people who don’t like to read.
                                 </div>
+                        <Link href={"/login"}>
                                 <button className="btn home__cta--btn">
                                     Login
-                                </button>
+                                </button></Link>
                             </div>
                             <figure className="landing__image--mask">
                                 <img src="/landing.png" alt="landing" />
@@ -282,9 +283,10 @@ export default function Home() {
                             </div>
                         </div>
                         <div className="reviews__btn--wrapper">
+                        <Link href={"/login"}>
                             <button className="btn home__cta--btn">
                                 Login
-                            </button>
+                            </button></Link>
                         </div>
                     </div>
                 </div>

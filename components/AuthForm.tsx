@@ -35,6 +35,7 @@ const AuthForm: React.FC = () => {
         const userCred = await createUserWithEmailAndPassword(auth, email, password);
         // Save user profile in Firestore
         await setDoc(doc(db, "users", userCred.user.uid), {
+          name: userCred.user.name || "",
           email: userCred.user.email,
           createdAt: new Date(),
         });

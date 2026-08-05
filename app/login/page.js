@@ -1,19 +1,30 @@
 "use client";
-import React from "react";
+
+import React, { useEffect } from "react";
 import AuthForm from "@/components/AuthForm";
-import { auth } from "@/app/lib/firebase";
-import { signOut } from "firebase/auth";
 import { useAuth } from "../../app/context/AuthContext";
-import Link from "next/link";
-import ForYou from "../ForYou/page";
+import { useRouter } from "next/navigation";
 
 export default function Login() {
-    const { user } = useAuth();
+    const {user, loading} = useAuth();
+    const router = useRouter();
+
+    useEffect(() => {
+        if (!loading && user !== undefined) {
+            console.log(`User is logged in, redirecting ${user.email} to /for-you`);
+            router.push("/for-you");
+        }
+    }, [user, loading, router]);
+
+    if (loading) return <p>Loading Login Page. . .</p>;
+    
+
+    if (user) return null; 
 
     return (
         <div>
-            <h1>Login Page</h1>
-            {user ? <ForYou /> : <AuthForm mode="signin" />}
+            <h1>Login Page</h1>            
+                <AuthForm mode="signin" />
         </div>
     );
 }
