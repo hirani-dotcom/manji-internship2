@@ -27,9 +27,9 @@ export default function RootLayout({
     return (
         <html
             lang="en"
-            className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+            className={`${geistSans.variable} ${geistMono.variable}  antialiased`}
         >
-            <body className="flex h-screen bg-gray-50">
+            <body className="flex h-screen scrollbar-auto bg-gray-50">
                 <AuthProvider>
                     <BookProvider>
                             <main className="flex-1 p-6 overflow-y-auto">

@@ -52,7 +52,7 @@ export default function Sidebar() {
           ></div>
 
           {/* Sidebar panel */}
-          <div className="relative bg-gray-800 text-white w-64 h-full p-4 z-50">
+          <div className="relative bg-gray-800 text-white w-64 h-screen p-4 z-50">
             <button
               onClick={toggleSidebar}
               aria-label="Close menu"

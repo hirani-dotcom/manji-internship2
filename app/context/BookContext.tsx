@@ -15,6 +15,7 @@ export interface Book {
 interface BookContextType {
   books: Book[];
   recommendedBooks: Book[];
+  suggestedBooks: Book[];
   loading: boolean;
   error: string | null;
   refreshBooks: () => Promise<void>;
@@ -25,6 +26,7 @@ const BookContext = createContext<BookContextType | undefined>(undefined);
 export const BookProvider = ({ children }: { children: ReactNode }) => {
   const [books, setBooks] = useState<Book[]>([]);
   const [recommendedBooks, setRecommendedBooks] = useState<Book[]>([]);
+  const [suggestedBooks, setSuggestedBooks]= useState<Book[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -34,9 +36,11 @@ export const BookProvider = ({ children }: { children: ReactNode }) => {
       setLoading(true);
       setError(null);
       const response = await api.get<Book[]>("/getBooks?status=selected");
-      const recommendedResponse = await api.get<Book[]>("/getBooks?status=recommended"); // Adjust endpoint
+      const recommendedResponse = await api.get<Book[]>("/getBooks?status=recommended"); 
+      const suggestedResponse = await api.get<Book[]>("getBooks?status=suggested")// Adjust endpoint
       setBooks(response.data);
       setRecommendedBooks(recommendedResponse.data);
+      setSuggestedBooks(suggestedResponse.data);
     } catch (err: any) {
       setError(err.message || "Failed to fetch books");
     } finally {
@@ -49,7 +53,7 @@ export const BookProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   return (
-    <BookContext.Provider value={{ books, recommendedBooks, loading, error, refreshBooks: fetchBooks }}>
+    <BookContext.Provider value={{ books, recommendedBooks, suggestedBooks, loading, error, refreshBooks: fetchBooks }}>
       {children}
     </BookContext.Provider>
   );

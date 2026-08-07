@@ -13,8 +13,8 @@ import {
 import TimeDisplay from "../../components/TimeDisplay";
 
 export default function Recommended() {
-    const { recommendedBooks, loading, error } = useBooks();
-    console.log(recommendedBooks);
+    const { suggestedBooks, loading, error } = useBooks();
+    console.log(suggestedBooks);
 
     if (loading) return <div>Loading...</div>;
     if (error) return <div>Error: {error}</div>;
@@ -96,13 +96,13 @@ export default function Recommended() {
         <div className="mt-8">
             <div className="max-w-250">
                 <div className="mt-10 text-left text-2xl font-bold mb-1">
-                    Recommended For You
+                    Suggested For You
                     <p className="text-left text-sm font-normal mb-8">
-                        We think you will like these!
+                        Browse these books
                     </p>
                 </div>
                 <Slider {...settings}>
-                    {recommendedBooks.map((book) => (
+                    {suggestedBooks.map((book) => (
                         <div key={book.id}>
                             <div className="gap-4">
                                 <div className="justify-items-start w-50 h-50 text-right">
