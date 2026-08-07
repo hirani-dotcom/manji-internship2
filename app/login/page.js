@@ -11,12 +11,11 @@ export default function Login() {
 
     useEffect(() => {
         if (!loading && user !== undefined) {
-            console.log(`User is logged in, redirecting ${user.email} to /for-you`);
             router.push("/for-you");
         }
     }, [user, loading, router]);
 
-    if (loading) return <p>Loading Login Page. . .</p>;
+    if (loading) return <h1 className="text-center text-green-500 pt-200">Logging You In . . . Hold Tight!</h1>;
     
 
     if (user) return null; 

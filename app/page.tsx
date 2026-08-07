@@ -3,7 +3,7 @@ import Landing from "@/app/Landing/page";
 
 export default function page() {
     return (
-        <div>
+        <div className="h-screen">
             <Landing />
         </div>
     );

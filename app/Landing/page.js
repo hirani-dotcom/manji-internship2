@@ -3,7 +3,6 @@ import { AiFillFileText, AiFillBulb, AiFillAudio } from "react-icons/ai";
 import { BsStarFill, BsStarHalf } from "react-icons/bs";
 import { BiCrown } from "react-icons/bi";
 import { RiLeafLine } from "react-icons/ri";
-import Link from "next/link";
 
 export default function Home() {
     return (
@@ -42,10 +41,10 @@ export default function Home() {
                                     <br className="remove--tablet" />
                                     and even people who don’t like to read.
                                 </div>
-                        <Link href={"/login"}>
+                        <a href="/login">
                                 <button className="btn home__cta--btn">
                                     Login
-                                </button></Link>
+                                </button></a>
                             </div>
                             <figure className="landing__image--mask">
                                 <img src="/landing.png" alt="landing" />
@@ -283,10 +282,10 @@ export default function Home() {
                             </div>
                         </div>
                         <div className="reviews__btn--wrapper">
-                        <Link href={"/login"}>
+                        <a href="/login">
                             <button className="btn home__cta--btn">
                                 Login
-                            </button></Link>
+                            </button></a>
                         </div>
                     </div>
                 </div>
