@@ -14,7 +14,6 @@ import TimeDisplay from "../../components/TimeDisplay";
 
 export default function Recommended() {
     const { suggestedBooks, loading, error } = useBooks();
-    console.log(suggestedBooks);
 
     if (loading) return <div>Loading...</div>;
     if (error) return <div>Error: {error}</div>;
