@@ -4,39 +4,41 @@ import { useState } from "react";
 import "../globals.css";
 import { useAuth } from "@/app/context/AuthContext";
 import { useBooks } from "@/app/context/BookContext";
+import { useSidebar } from "../context/SidebarContext";
 import Suggested from "../for-you/Suggested";
 import Recommended from "../for-you/Recommended";
 import Selected from "../for-you/Selected";
 import Footer from "@/app/for-you/Footer";
+import clsx from "clsx";
 
 export default function page() {
-    const [sidebarOpen, setSidebarOpen] = useState(false);
     const user = useAuth();
-    const { books, recommendedBooks, loading, error, refreshBooks } =
-        useBooks();
+    const { loading, error } = useBooks();
+    const { isOpen, open, close, toggle } = useSidebar();
 
     if (loading) return <div>Loading...</div>;
     if (error) return <div>Error: {error}</div>;
 
     return (
-        <div className="flex h-screen fixed left-56 top-20">
-            {/* Page content */}
+        <div className={clsx("flex min-h-screen")}>
             <div className="flex flex-col flex-1">
-            <main className="flex-1 overflow-y-auto p-6 text-center space-y-6 bg-white scrollbar-none">
-                <div>
-                    <Selected />
-                </div>
-                <div>
-                    <Recommended />
-                </div>
-                <div>
-                    <Suggested />
-                </div>
-                <br />
-                <br />
-                <br />
-                <Footer />
-            </main>
+                {" "}
+                {/* Container */}
+                <main className="flex flex-col max-w-svw m-auto gap-4">
+                    <div>
+                        <Selected />
+                    </div>
+                    <div>
+                        <Recommended />
+                    </div>
+                    <div>
+                        <Suggested />
+                    </div>
+                    <br />
+                    <br />
+                    <br />
+                    <Footer />
+                </main>
             </div>
         </div>
     );

@@ -1,59 +1,54 @@
-import { Geist, Geist_Mono } from "next/font/google";
+"use client";
+
+import { Roboto, Roboto_Condensed } from "next/font/google";
 import "@/app/globals.css";
 import Sidebar from "@/components/Sidebar";
 import Header from "@/components/Header";
+import { SidebarProvider, useSidebar } from "../context/SidebarContext";
+import clsx from "clsx";
 
-import { SidebarProvider } from "./SidebarContext";
-
-const geistSans = Geist({
-    variable: "--font-geist-sans",
+const robotoSans = Roboto({
+    variable: "--font-robot-sans",
     subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-    variable: "--font-geist-mono",
+const robotoCondensed = Roboto_Condensed({
+    variable: "--font-roboto_condensed",
     subsets: ["latin"],
 });
 
+function LayoutContent({ children }: { children: React.ReactNode }) {
+    const { isOpen } = useSidebar();
 
-export default function Layout({
-    children,
-}: {
-    children: React.ReactNode;
-}) {
-return (
-    <SidebarProvider>
-      <div className="h-screen flex">
-        {/* Sidebar */}
-        <Sidebar />
+    return (
+        <div className="flex min-h-screen">
+            {/* Sidebar */}
+            <Sidebar />
 
-        {/* Main content area */}
-        <div className="flex-1 flex flex-col lg:pl-64">
-          {/* Header */}
-          <Header />
-
-          {/* Scrollable content */}
-          <main className="mt-14 overflow-y-auto flex-1 p-4 bg-gray-50">
-            {children}
-          </main>
+            {/* Main content wrapper */}
+            <div
+                className={clsx(
+                    "flex flex-col flex-1 transition-all duration-300",
+                    // On desktop, shift when sidebar is open
+                    // On mobile, no margin when sidebar is closed
+                    isOpen ? "ml-56" : "ml-0"
+                )}
+            >
+                <div>
+                {/* Header */}
+                <Header />
+                {/* Scrollable content */}
+                <main className="flex-1 overflow-y-auto p-4 lg:ml-56">{children}</main>
+                </div>
+            </div>
         </div>
-      </div>
-    </SidebarProvider>
-  );
+    );
+}
 
-
-
-    // return (
-    //     <div className="">
-    //         <div className="fixed left-0 top-0 text-left">
-    //             <Sidebar />
-    //             <div className="fixed max-w-230 right-20 top-5">
-    //                 <Header />
-    //                 <div className="">
-    //                     {children}
-    //                 </div>
-    //             </div>
-    //         </div>
-    //     </div>
-    // );
+export default function Layout({ children }: { children: React.ReactNode }) {
+    return (
+        <SidebarProvider>
+            <LayoutContent>{children}</LayoutContent>
+        </SidebarProvider>
+    );
 }

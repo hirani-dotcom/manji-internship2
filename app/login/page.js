@@ -12,6 +12,9 @@ export default function Login() {
     useEffect(() => {
         if (user) {
             router.push("/for-you");
+            setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }, 0);
         }
     }, [user, router]);
 

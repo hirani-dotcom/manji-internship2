@@ -3,10 +3,17 @@
 import { FaPlayCircle } from "react-icons/fa";
 import { useAuth } from "@/app/context/AuthContext";
 import { useBooks } from "@/app/context/BookContext";
+import { useRouter } from "next/navigation";
+import TimeDisplay from "../../components/TimeDisplay";
 
 export default function Selected() {
-    const { books, loading, error } = useBooks();
+    const { selectedBook, loading, error } = useBooks();
     const user = useAuth();
+    const router = useRouter();
+
+    const handleBookClick = (bookId) => {
+        router.push(`/for-you/book/${bookId}`);
+    }
 
     return (
         <div>            
@@ -14,8 +21,8 @@ export default function Selected() {
                 Selected Just For You
             </h1>
             <ul className="w-full">
-                {books.map((book) => (
-                    <li key={book.id}>
+                {selectedBook.map((book) => (
+                    <li key={book.id} className="p-4 cursor-pointer" onClick={() => handleBookClick(book.id)}>
                         <div className="flex justify-between  text-left w-150 h-auto bg-orange-200 gap-4 p-4">
                             <div className="w-70">
                                 <strong>{book.subTitle}</strong>
@@ -31,10 +38,7 @@ export default function Selected() {
                                         <strong>{book.title}</strong>
                                     </p>
                                     <p className="text-sm">{book.author}</p>
-                                    <FaPlayCircle /> {
-                                        book.audioLink.length
-                                    }{" "}
-                                    seconds
+                                    <FaPlayCircle className="inline" /> <TimeDisplay seconds = {book.audioLink.length} />
                                 </div>
                             </div>
                         </div>
