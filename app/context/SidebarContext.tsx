@@ -7,20 +7,27 @@ interface SidebarContextType {
   open: () => void;
   close: () => void;
   toggle: () => void;
+  isLoggedIn: boolean;
+  logout: () => void;
 }
 
 const SidebarContext = createContext<SidebarContextType | undefined>(undefined);
 
 export function SidebarProvider({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const open = () => setIsOpen(true);
   const close = () => setIsOpen(false);
   const toggle = () => setIsOpen((prev) => !prev);
 
+  const logout = () => {
+    setIsLoggedIn(false);
+  }
+
 
   return (
-    <SidebarContext.Provider value={{ isOpen, open, close, toggle }}>
+    <SidebarContext.Provider value={{ isOpen, open, close, toggle, isLoggedIn, logout }}>
       {children}
     </SidebarContext.Provider>
   );

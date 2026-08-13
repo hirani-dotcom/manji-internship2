@@ -9,6 +9,7 @@ import { useParams } from "next/navigation";
 import TimeDisplay from "@/components/TimeDisplay";
 import { useSidebar } from "../../../context/SidebarContext";
 import clsx from "clsx";
+import AddToLibrary from "@/components/AddToLibrary";
 
 export default function BookPage() {
 const { isOpen } = useSidebar();
@@ -81,10 +82,11 @@ const book =
                                 </button>
                             </div>
                             <div className="pt-4 pb-4 font-bold text-blue-500">
-                                <button
+                                <div
                                     className="mt-2 bg-blue-500 text-white px-3 py-1 rounded">
-                                    <MdBookmarkBorder className="inline"/>Add To My Library
-                                </button>
+                                    <MdBookmarkBorder className="inline"/>
+                                    <AddToLibrary book={book}/>
+                                </div>
                             </div>
                             <h4 className="font-bold mb-4">What's it about?</h4>
                             <div className="flex gap-4 mb-4">

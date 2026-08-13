@@ -54,7 +54,7 @@ export default function Sidebar() {
                         <MdOutlineHome className="inline text-2xl" /> For You
                     </Link>
                     <Link
-                        href="#"
+                        href="/mylibrary"
                         className="block hover:bg-gray-400 p-2 rounded"
                     >
                         <MdBookmarkBorder className="inline text-2xl" /> My

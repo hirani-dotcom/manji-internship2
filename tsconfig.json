@@ -29,6 +29,6 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "**/*.mts"
-, "app/for-you/book/[bookId]/page.js", "components/Header.jsx"  ],
+, "app/for-you/book/[bookId]/page.js", "components/Header.jsx", "components/AddToLibrary.tsx"  ],
   "exclude": ["node_modules"]
 }
