@@ -149,7 +149,7 @@ export default function MyLibraryPage() {
                             return (
                                 <Link
                                     key={displayBook.id}
-                                    href={`/book/${displayBook.id}`}
+                                    href={`/for-you/book/${displayBook.id}`}
                                     className="group bg-white border border-gray-200 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all flex flex-col justify-between overflow-hidden"
                                 >
                                     <div className="flex flex-col gap-3">
@@ -182,7 +182,7 @@ export default function MyLibraryPage() {
                                                         {
                                                             displayBook.averageRating
                                                         }{" "}
-                                                        Rating
+                                                        Average Rating
                                                     </span>
                                                 </div>
                                             )}

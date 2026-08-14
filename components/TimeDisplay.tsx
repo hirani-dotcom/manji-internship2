@@ -22,8 +22,8 @@ const TimeDisplay: React.FC<TimeDisplayProps> = ({ seconds }) => {
 
     return (
         <span>
-             {formattedMinutes}m  {formattedSeconds}s
-        </span>           
+            {formattedMinutes}:{formattedSeconds}
+        </span>
     );
 };
 
