@@ -74,7 +74,7 @@ export default function Sidebar() {
                     </a>
                 <div className="fixed bottom-20 font-bold space-y-2 ">
                     <a
-                        href="#"
+                        href="/settings"
                         className="block hover:bg-gray-400 p-2 rounded"
                     >
                         <MdSettings className="inline text-2xl" /> Settings
@@ -92,7 +92,7 @@ export default function Sidebar() {
                         onClick={logout}
                     >
                         <IoExitOutline className="inline" /> Log Out{" "}
-                        {user?.email}
+                        <span className="text-sm">({user?.email})</span>
                     </Link>
                 </div>
                 </nav>
