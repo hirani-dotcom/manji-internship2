@@ -1,13 +1,15 @@
 "use client";
 
 import { auth, db } from "@/app/lib/firebase";
-import { doc, setDoc, deleteDoc, onSnapshot, writeBatch } from "firebase/firestore";
+import { doc, setDoc, deleteDoc, onSnapshot, writeBatch,
+  getDoc, collection, getDocs  } from "firebase/firestore";
 import { useState, useEffect } from "react";
 
 export default function AddToLibrary({ book }) {
   const [loading, setLoading] = useState(false);
   const [isInLibrary, setIsInLibrary] = useState(false);
   const [checking, setChecking] = useState(true);
+  const [subscribed, setSubscribed] = useState("none");
 
   // Listen to real-time library status for the authenticated user
   useEffect(() => {
@@ -23,6 +25,15 @@ export default function AddToLibrary({ book }) {
       setIsInLibrary(docSnap.exists());
       setChecking(false);
     });
+
+    // Fetch subscription status once
+    const fetchSubscription = async () => {
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+      if (userDoc.exists()) {
+        setSubscribed(userDoc.data().subscribed || "none");
+      }
+    };
+    fetchSubscription();
 
     return () => unsubscribe();
   }, [book?.id]);
@@ -47,6 +58,15 @@ export default function AddToLibrary({ book }) {
         await deleteDoc(bookRef);
         alert("Removed from your library.");
       } else {
+        // Restrict free users to no books
+        if (subscribed === "none") {
+          const librarySnap = await getDocs(collection(db, "users", user.uid, "library"));
+          if (librarySnap.size >= 0) {
+            setLoading(false);
+            return alert("Free plan limit reached. Upgrade to add  books.");
+          }
+        }
+
         // Use an atomic batch to ensure BOTH user document and book document succeed together
         const batch = writeBatch(db);
 

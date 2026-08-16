@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react";
 import { auth, db } from "@/app/lib/firebase";
 import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
-import { useBooks } from "@/app/context/BookContext"; // 1. Import your custom Context hook
+import { useBooks } from "@/app/context/BookContext";
 import Link from "next/link";
-import { MdBookmark, MdMenuBook, MdOutlineStarBorder } from "react-icons/md";
+import { MdBookmark, MdOutlineStarBorder } from "react-icons/md";
 import { FiClock } from "react-icons/fi";
 import TimeDisplay from "@/components/TimeDisplay";
 
@@ -26,14 +26,12 @@ export default function MyLibraryPage() {
     const [loading, setLoading] = useState(true);
     const [user, setUser] = useState(auth.currentUser);
 
-    // 2. Extract arrays from your global BookContext
     const {
         selectedBook = [],
         recommendedBooks = [],
         suggestedBooks = [],
     } = useBooks();
 
-    // Monitor auth state changes
     useEffect(() => {
         const unsubscribeAuth = auth.onAuthStateChanged((currentUser) => {
             setUser(currentUser);
@@ -115,7 +113,6 @@ export default function MyLibraryPage() {
                 ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                         {firestoreBooks.map((firestoreItem) => {
-                            // 3. Find the rich book details match within context arrays safely
                             const contextMatch =
                                 recommendedBooks.find(
                                     (b) => b.id === firestoreItem.id,
@@ -131,7 +128,6 @@ export default function MyLibraryPage() {
                                       ? selectedBook
                                       : null);
 
-                            // 4. Merge fields: Prefer context values for advanced layout data
                             const displayBook = {
                                 id: firestoreItem.id,
                                 title:
@@ -173,7 +169,6 @@ export default function MyLibraryPage() {
                                             </p>
                                         </div>
 
-                                        {/* Display extra parameters from displayBook like Ratings or audio length */}
                                         <div className="flex flex-row md:flex-col xs:items-center justify-between gap-1 mt-2 text-xs font-semibold text-gray-600">
                                             {displayBook.averageRating && (
                                                 <div className="flex items-center gap-1 text-amber-600">

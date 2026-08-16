@@ -9,6 +9,18 @@ export interface Book {
   title: string;
   author: string;
   publishedDate?: string;
+  subTitle: string;
+  imageLink: string;
+  audioLink: string;
+  averageRating: number;
+  keyIdeas: number;
+  type: string;
+  status: string;
+  subscriptionRequired: boolean;
+  summary: string;
+  tags: string[];
+  bookDescription: string;
+  authorDescription: string
 }
 
 // Define context value type

@@ -93,8 +93,8 @@ export default function Header() {
     if (error) return <p className="text-center mt-6 text-red-500">{error}</p>;
 
     return (
-        <div className="max-w-xl mx-auto p-2 relative" ref={containerRef}>
-            <div className="flex relative">
+        <div className="max-w-full mx-auto p-2 relative" ref={containerRef}>
+            <div className="flex relative max-w-md ml-auto">
                 {/* Search Input */}
                 <button className="lg:hidden ml-2" onClick={open}>
                     <MdOutlineMenu className="h-6 w-6" />
@@ -104,7 +104,7 @@ export default function Header() {
                     placeholder="Search for a book..."
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
-                    className="w-full px-4 py-2 text-gray-600 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-blue-400"
+                    className="w-full bg-gray-200 px-4 py-2 text-gray-600 border border-gray-400 rounded-lg focus:outline-none focus:ring focus:ring-blue-400"
                 />
                 {query.length > 0 ? (
                     <button
@@ -122,14 +122,15 @@ export default function Header() {
                     <HiMagnifyingGlass className="inline absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-600" />
                 )}
             </div>
+            <div className="border-b-2 border-gray-200 w-full my-4"></div>
 
             {/* Dropdown Overlay */}
             {isOpen && filteredBooks.length > 0 && (
-                <div className="absolute w-100 left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto z-50">
+                <div className="absolute w-100  right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto z-50">
                     {filteredBooks.map((book, idx) => (
                         <div
                             key={book.id}
-                            className={`flex px-4 py-2 items-center cursor-pointer ${
+                            className={`flex px-4 py-2 items-center cursor-pointer border-b border-gray-300 ${
                                 idx === activeIndex
                                     ? "bg-blue-100"
                                     : "hover:bg-gray-100"

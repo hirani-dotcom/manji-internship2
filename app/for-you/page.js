@@ -8,7 +8,6 @@ import { useSidebar } from "../context/SidebarContext";
 import Suggested from "../for-you/Suggested";
 import Recommended from "../for-you/Recommended";
 import Selected from "../for-you/Selected";
-import Footer from "@/app/for-you/Footer";
 import clsx from "clsx";
 
 export default function page() {
@@ -34,10 +33,6 @@ export default function page() {
                     <div>
                         <Suggested />
                     </div>
-                    <br />
-                    <br />
-                    <br />
-                    <Footer />
                 </main>
             </div>
         </div>

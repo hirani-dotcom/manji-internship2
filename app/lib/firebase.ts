@@ -1,18 +1,21 @@
-import { initializeApp, getApps, getApp } from "firebase/app";
+import { initializeApp, getApps } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+import { getFunctions } from "firebase/functions";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-    apiKey: "AIzaSyAPm18Ku61cDPvtEymkJmC-kWZ76hFR61o",
-    authDomain: "summarist-440e0.firebaseapp.com",
-    projectId: "summarist-440e0",
-    storageBucket: "summarist-440e0.firebasestorage.app",
-    messagingSenderId: "780323235301",
-    appId: "1:780323235301:web:644fac480c3439a5aa3b0c",
+    apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY!,
+    authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN!,
+    projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID!,
+    storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET!,
+    messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID!,
+    appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID!,   
 };
 
-const app = (!getApps().length) ? initializeApp(firebaseConfig) : getApp();
+const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
+
 export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
 export const db = getFirestore(app);
+export const functions = getFunctions(app);

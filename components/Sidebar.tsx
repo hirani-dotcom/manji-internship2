@@ -8,15 +8,26 @@ import {
     MdSettings,
     MdOutlineHelpOutline,
 } from "react-icons/md";
+import { RiFontSize } from "react-icons/ri";
 import { IoExitOutline } from "react-icons/io5";
 import { TfiMarkerAlt } from "react-icons/tfi";
 import { useAuth } from "@/app/context/AuthContext";
 import { useSidebar } from "@/app/context/SidebarContext";
 import clsx from "clsx";
+import { usePathname } from "next/navigation";
+import { useTextSize } from "@/app/context/TextSizeContext";
+import { useState } from "react";
 
 export default function Sidebar() {
     const { isOpen, close } = useSidebar();
     const { user, logout } = useAuth();
+    const pathname = usePathname();
+    const firstSegment = pathname.split("/")[1] || "";
+    const {textSize, setTextSize} = useTextSize();
+
+    const handleTextSize = (size: string) => {
+        setTextSize(size as any);
+    };
 
     return (
         <>
@@ -32,10 +43,9 @@ export default function Sidebar() {
             {/* Sidebar */}
             <aside
                 className={clsx(
-                    "fixed top-0 left-0 min-h-screen w-56 bg-gray-200 text-black z-50 transition-transform duration-300 text-lg font-bold",
-                    isOpen
-                        ? "translate-x-0"
-                        : "-translate-x-full", "lg:translate-x-0",
+                    `fixed top-0 left-0 min-h-screen w-56 bg-gray-200 text-black z-50 transition-transform duration-300 text-lg font-bold`,
+                    isOpen ? "translate-x-0" : "-translate-x-full",
+                    "lg:translate-x-0",
                 )}
             >
                 {/* Close button for mobile */}
@@ -72,29 +82,48 @@ export default function Sidebar() {
                     >
                         <MdSearch className="inline text-2xl" /> Search
                     </a>
-                <div className="fixed bottom-20 font-bold space-y-2 ">
-                    <a
-                        href="/settings"
-                        className="block hover:bg-gray-400 p-2 rounded"
-                    >
-                        <MdSettings className="inline text-2xl" /> Settings
-                    </a>
-                    <a
-                        href="#"
-                        className="block hover:bg-gray-400 p-2 rounded cursor-not-allowed"
-                    >
-                        <MdOutlineHelpOutline className="inline text-2xl" />{" "}
-                        Help & Support
-                    </a>
-                    <Link
-                        href="/"
-                        className="block hover:bg-gray-400 p-2 rounded"
-                        onClick={logout}
-                    >
-                        <IoExitOutline className="inline" /> Log Out{" "}
-                        <span className="text-sm">({user?.email})</span>
-                    </Link>
-                </div>
+                    {firstSegment === "player" ? (
+                        <a className="block p-2 rounded ">
+                            <RiFontSize
+                                onClick={() => handleTextSize("text-sm")}
+                                className="inline hover:bg-gray-400 text-xl mr-4"
+                            />
+                            <RiFontSize
+                                onClick={() => handleTextSize("text-base")}
+                                className="inline hover:bg-gray-400 text-2xl mr-4"
+                            />
+                            <RiFontSize
+                                onClick={() => handleTextSize("text-lg")}
+                                className="inline hover:bg-gray-400 text-3xl mr-4"
+                            />
+                            <RiFontSize
+                                onClick={() => handleTextSize("text-xl")}
+                                className="inline hover:bg-gray-400 text-4xl"
+                            />
+                        </a>
+                    ) : null}
+                    <div className="fixed bottom-20 font-bold space-y-2 ">
+                        <a
+                            href="/settings"
+                            className="block hover:bg-gray-400 p-2 rounded"
+                        >
+                            <MdSettings className="inline text-2xl" /> Settings
+                        </a>
+                        <a
+                            href="#"
+                            className="block hover:bg-gray-400 p-2 rounded cursor-not-allowed"
+                        >
+                            <MdOutlineHelpOutline className="inline text-2xl" />{" "}
+                            Help & Support
+                        </a>
+                        <Link
+                            href="/"
+                            className="block hover:bg-gray-400 p-2 rounded"
+                            onClick={() => logout}
+                        >
+                            <IoExitOutline className="inline" /> Log Out
+                        </Link>
+                    </div>
                 </nav>
             </aside>
         </>

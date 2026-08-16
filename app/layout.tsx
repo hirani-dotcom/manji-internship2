@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "./context/AuthContext";
 import { BookProvider } from "../app/context/BookContext";
+import { TextSizeProvider } from "./context/TextSizeContext";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -32,8 +33,10 @@ export default function RootLayout({
             <body className="flex h-screen scrollbar-auto bg-gray-50">
                 <AuthProvider>
                     <BookProvider>
+                        <TextSizeProvider>
                             <main className="flex-1 p-6 overflow-y-auto">
                             {children}</main>
+                        </TextSizeProvider>
                     </BookProvider>
                 </AuthProvider>
             </body>

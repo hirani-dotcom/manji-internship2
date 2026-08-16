@@ -10,11 +10,13 @@ import TimeDisplay from "@/components/TimeDisplay";
 import { useSidebar } from "../../../context/SidebarContext";
 import clsx from "clsx";
 import AddToLibrary from "@/components/AddToLibrary";
+import { useRouter } from "next/navigation";
 
 export default function BookPage() {
 const { isOpen } = useSidebar();
 const params = useParams();
 const { bookId } = params;
+const router = useRouter();
 const { user, isSubscribed } = useAuth();
 const { selectedBook, recommendedBooks, suggestedBooks } = useBooks();
 const book =
@@ -25,6 +27,10 @@ const book =
     if (!book) {
         return <p className="p-6 text-red-600">Book Not Found.</p>;
     }
+
+     const handleBookClick = (bookId) => {
+        router.push(`/player/${bookId}`);
+    };
 
     return (
         <div className={clsx("flex min-h-screen", )}>
@@ -60,8 +66,7 @@ const book =
                                 </div>
                                 <div>
                                     <FiMic className="inline" />{" "}
-                                    {book.audioLink ? "Audio" : "No Audio"}{" "}
-                                    {book.summary ? "& Text" : "No Text"}
+                                    {book.type}
                                 </div>
                                 <div>
                                     <HiOutlineLightBulb className="inline" />{" "}
@@ -72,11 +77,11 @@ const book =
                                 <br />
                             </div>
                             <div>
-                                <button className="bg-black text-white p-4 m-auto rounded-2xl w-30 mr-4">
+                                <button onClick={() => handleBookClick(bookId)} className="bg-black text-white p-4 m-auto rounded-2xl w-30 mr-4">
                                     {" "}
                                     Read{" "}
                                 </button>{" "}
-                                <button className="bg-black text-white p-4 m-auto rounded-2xl w-30 ml-4">
+                                <button onClick={() => handleBookClick(bookId)} className="bg-black text-white p-4 m-auto rounded-2xl w-30 ml-4">
                                     {" "}
                                     Listen{" "}
                                 </button>
