@@ -12,108 +12,117 @@ import { auth, db } from "@/app/lib/firebase";
 import { loadStripe } from "@stripe/stripe-js";
 import { doc, collection, getDocs } from "firebase/firestore";
 
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
+// const stripePromise = loadStripe(
+//     process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!,
+// );
 
 export default function page() {
+    //   const plans = [
+    //     { id: "pro",
+    //         name: "Premium Plus",
+    //         price: "$99.99/year",
+    //         description: "Includes 7-day free trial",
+    //         priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_YEARLY,
+    //  },
+    //     { id: "premium",
+    //         name: "Premium",
+    //         price: "$9.99/month",
+    //         description: "No trial period",
+    //         priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_MONTHLY,
+    //     }
+    //   ];
 
-  const plans = [
-    { id: "pro", 
-        name: "Premium Plus", 
-        price: "$99.99/year", 
-        description: "Includes 7-day free trial",
-        priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_YEARLY,
- },
-    { id: "premium",
-        name: "Premium",
-        price: "$9.99/month",
-        description: "No trial period",
-        priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_MONTHLY,
-    }
-  ];
+    const [selectedPlan, setSelectedPlan] = useState("premium");
+    const [loading, setLoading] = useState(false);
+    const [hasSubscription, setHasSubscription] = useState(false);
 
-  const [selectedPlan, setSelectedPlan] = useState("premium");
-  const [loading, setLoading] = useState(false);
-  const [hasSubscription, setHasSubscription] = useState(false);
+    // Check Firestore for active subscription
+    useEffect(() => {
+        const checkSubscription = async () => {
+            const user = auth.currentUser;
+            if (!user) return;
 
-  // Check Firestore for active subscription
-  useEffect(() => {
-    const checkSubscription = async () => {
-      const user = auth.currentUser;
-      if (!user) return;
+            const subsRef = collection(
+                db,
+                "customers",
+                user.uid,
+                "subscriptions",
+            );
+            const subsSnap = await getDocs(subsRef);
 
-      const subsRef = collection(db, "customers", user.uid, "subscriptions");
-      const subsSnap = await getDocs(subsRef);
+            const active = subsSnap.docs.some(
+                (doc) =>
+                    doc.data().status === "active" ||
+                    doc.data().status === "trialing",
+            );
 
-      const active = subsSnap.docs.some(
-        (doc) => doc.data().status === "active" || doc.data().status === "trialing"
-      );
+            setHasSubscription(active);
+        };
 
-      setHasSubscription(active);
-    };
+        const unsubscribe = auth.onAuthStateChanged((user) => {
+            if (user) checkSubscription();
+        });
 
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      if (user) checkSubscription();
-    });
+        return () => unsubscribe();
+    }, []);
 
-    return () => unsubscribe();
-  }, []);
+    //   const handleChange = (id) => {
+    //     setSelectedPlan(id);
+    //   };
 
-  const handleChange = (id) => {
-    setSelectedPlan(id);
-  };
+    //   const handleSubmit = async (e) => {
+    //     e.preventDefault();
+    //     setLoading(true);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+    //     try {
+    //       const user = auth.currentUser;
+    //       if (!user) {
+    //         alert("Please log in first.");
+    //         setLoading(false);
+    //         return;
+    //       }
 
-    try {
-      const user = auth.currentUser;
-      if (!user) {
-        alert("Please log in first.");
-        setLoading(false);
-        return;
-      }
+    //       if (hasSubscription) {
+    //         alert("You already have an active subscription.");
+    //         setLoading(false);
+    //         return;
+    //       }
 
-      if (hasSubscription) {
-        alert("You already have an active subscription.");
-        setLoading(false);
-        return;
-      }
+    //       const plan = plans.find((p) => p.id === selectedPlan);
+    //       if (!plan) throw new Error("Invalid plan selected");
 
-      const plan = plans.find((p) => p.id === selectedPlan);
-      if (!plan) throw new Error("Invalid plan selected");
+    //       const res = await fetch("/api/create-checkout-session", {
+    //         method: "POST",
+    //         headers: { "Content-Type": "application/json" },
+    //         body: JSON.stringify({ priceId: plan.priceId, uid: user.uid }),
+    //       });
 
-      const res = await fetch("/api/create-checkout-session", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ priceId: plan.priceId, uid: user.uid }),
-      });
+    //       const data = await res.json();
+    //       if (data.error) throw new Error(data.error);
 
-      const data = await res.json();
-      if (data.error) throw new Error(data.error);
-
-      const stripe = await stripePromise;
-      await stripe.redirectToCheckout({ sessionId: data.id });
-    } catch (err) {
-      console.error(err);
-      alert(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+    //       const stripe = await stripePromise;
+    //       await stripe.redirectToCheckout({ sessionId: data.id });
+    //     } catch (err) {
+    //       console.error(err);
+    //       alert(err.message);
+    //     } finally {
+    //       setLoading(false);
+    //     }
+    //   };
 
     return (
         <div>
             <div className="bg-blue-900 text-white max-w-250 h-auto m-auto pt-8 sm:rounded-bl-[100%] sm:rounded-br-[100%]">
                 <div className="text-center max-w-200 m-auto text-5xl font-bold pt-16">
                     Get unlimited access to many amazing books to read
-                <p className="text-center max-w-150 m-auto pt-10 text-lg font-normal rounded-bl-2xl">
-                    Turn ordinary moments into amazing learning opportunities
-                </p>
-                <img className="w-70 m-auto rounded-t-full mt-6"
-                    src={"/pricing-top.png"}
-                />
+                    <p className="text-center max-w-150 m-auto pt-10 text-lg font-normal rounded-bl-2xl">
+                        Turn ordinary moments into amazing learning
+                        opportunities
+                    </p>
+                    <img
+                        className="w-70 m-auto rounded-t-full mt-6"
+                        src={"/pricing-top.png"}
+                    />
                 </div>
             </div>
             <div className="flex grid-cols-3 mx-auto max-w-3xl gap-8 text-center pt-8">
