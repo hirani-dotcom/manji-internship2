@@ -120,13 +120,9 @@ export default function MyLibraryPage() {
                                 suggestedBooks.find(
                                     (b) => b.id === firestoreItem.id,
                                 ) ||
-                                // (Array.isArray(selectedBook) ? 
-                                selectedBook.find(
-                                          (b) => b.id === firestoreItem.id,
-                                      )
-                                    // : selectedBook?.id === firestoreItem.id
-                                    //   ? selectedBook
-                                    //   : null);
+                                (selectedBook[0]?.id === firestoreItem.id
+                                    ? selectedBook[0]
+                                    : null);
 
                             const displayBook = {
                                 id: firestoreItem.id,
