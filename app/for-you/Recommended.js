@@ -1,6 +1,7 @@
 "use client";
 
 import { useBooks } from "@/app/context/BookContext";
+import { useAuth } from "@/app/context/AuthContext";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, Navigation } from "swiper/modules";
 import {
@@ -10,10 +11,10 @@ import {
     FaRegClock,
 } from "react-icons/fa";
 import TimeDisplay from "../../components/TimeDisplay";
-import { useRouter } from "next/navigation";
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
+import { useRouter } from "next/navigation";
 
 export default function Recommended() {
     const { recommendedBooks, loading, error } = useBooks();
@@ -26,7 +27,7 @@ export default function Recommended() {
         return <p className="text-center py-4">No books found.</p>;
 
     const handleBookClick = (bookId) => {
-        router.push(`/for-you/book/${bookId}`);
+        router.replace(`/for-you/book/${bookId}`);
     };
 
     return (

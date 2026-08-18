@@ -8,33 +8,24 @@ import Link from "next/link";
 import { MdBookmark, MdOutlineStarBorder } from "react-icons/md";
 import { FiClock } from "react-icons/fi";
 import TimeDisplay from "@/components/TimeDisplay";
-
-interface SavedBookFirestore {
-    id: string;
-    title: string;
-    author: string;
-    imageLink: string;
-    averageRating: number;
-    audioLink: string;
-    addedAt: any;
-}
+import { useAuth } from "../context/AuthContext";
+import { useRouter } from "next/navigation";
 
 export default function MyLibraryPage() {
-    const [firestoreBooks, setFirestoreBooks] = useState<SavedBookFirestore[]>(
-        [],
-    );
+    const [firestoreBooks, setFirestoreBooks] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [user, setUser] = useState(auth.currentUser);
-
+    const [currUser, setCurrUser] = useState(auth.currentUser);
+    const {user} = useAuth();
+    const router = useRouter();
     const {
         selectedBook = [],
         recommendedBooks = [],
         suggestedBooks = [],
     } = useBooks();
-
+    
     useEffect(() => {
         const unsubscribeAuth = auth.onAuthStateChanged((currentUser) => {
-            setUser(currentUser);
+            setCurrUser(currentUser);
             if (!currentUser) setLoading(false);
         });
         return () => unsubscribeAuth();
@@ -42,9 +33,9 @@ export default function MyLibraryPage() {
 
     // Fetch simple library records from Firestore
     useEffect(() => {
-        if (!user) return;
+        if (!currUser) return;
 
-        const libraryRef = collection(db, "users", user.uid, "library");
+        const libraryRef = collection(db, "users", currUser.uid, "library");
         const q = query(libraryRef, orderBy("addedAt", "desc"));
 
         const unsubscribeLibrary = onSnapshot(
@@ -53,7 +44,7 @@ export default function MyLibraryPage() {
                 const list = snapshot.docs.map((doc) => ({
                     id: doc.id,
                     ...doc.data(),
-                })) as SavedBookFirestore[];
+                }));
 
                 setFirestoreBooks(list);
                 setLoading(false);
@@ -62,7 +53,21 @@ export default function MyLibraryPage() {
         );
 
         return () => unsubscribeLibrary();
-    }, [user]);
+    }, [currUser]);
+    
+    const hasAccess =
+    user &&
+    user.subscribed &&
+    ["Premium", "Premium Plus"].includes(user.subscribed);
+        
+    useEffect(() => {
+    if (!hasAccess) {
+      router.replace("/plan-required");
+    }
+  }, [hasAccess, router]);
+    
+  if (!hasAccess) return null;
+  
 
     if (loading) {
         return (
@@ -74,24 +79,12 @@ export default function MyLibraryPage() {
         );
     }
 
-    if (!user) {
         return (
-            <div className="flex min-h-screen flex-col items-center justify-center p-6 text-center">
-                <MdBookmark className="text-5xl text-gray-300 mb-4" />
-                <h1 className="text-2xl font-bold mb-2">Access Denied</h1>
-                <p className="text-gray-500">
-                    Please log in to view your library.
-                </p>
-            </div>
-        );
-    }
-
-    return (
         <div className="min-h-screen bg-gray-50 p-6 md:p-12">
             <div className="max-w-6xl mx-auto">
                 <header className="mb-8 flex items-center gap-3">
                     <h1 className="text-3xl font-bold text-gray-900">
-                        My Library
+                        {user.displayName}'s Library
                     </h1>
                     <p className="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded-full ml-2">
                         {firestoreBooks.length} Items

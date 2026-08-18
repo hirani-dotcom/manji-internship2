@@ -29,8 +29,6 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
             <div
                 className={clsx(
                     "flex flex-col flex-1 transition-all duration-300",
-                    // On desktop, shift when sidebar is open
-                    // On mobile, no margin when sidebar is closed
                     isOpen ? "ml-56" : "ml-0"
                 )}
             >

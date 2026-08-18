@@ -11,29 +11,43 @@ import { useSidebar } from "../../../context/SidebarContext";
 import clsx from "clsx";
 import AddToLibrary from "@/components/AddToLibrary";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function BookPage() {
-const { isOpen } = useSidebar();
-const params = useParams();
-const { bookId } = params;
-const router = useRouter();
-const { user, isSubscribed } = useAuth();
-const { selectedBook, recommendedBooks, suggestedBooks } = useBooks();
-const book =
-    recommendedBooks.find((b) => b.id === bookId) ||
-    suggestedBooks.find((b) => b.id === bookId) ||
-    selectedBook.find((b) => b.id === bookId);
+    const { isOpen } = useSidebar();
+    const params = useParams();
+    const { bookId } = params;
+    const router = useRouter();
+    const { user, isSubscribed } = useAuth();
+    const { selectedBook, recommendedBooks, suggestedBooks } = useBooks();
+    const book =
+        recommendedBooks.find((b) => b.id === bookId) ||
+        suggestedBooks.find((b) => b.id === bookId) ||
+        selectedBook.find((b) => b.id === bookId);
 
+        const proAccess =
+        user &&
+        user.subscribed &&
+        ["Premium Plus"].includes(user.subscribed);
+        
+    useEffect(() => {
+        if (!proAccess) {
+            router.push("/plan-required");
+        }
+    }, [proAccess, router]);
+
+    if (!proAccess) return null;
+    
     if (!book) {
         return <p className="p-6 text-red-600">Book Not Found.</p>;
     }
 
-     const handleBookClick = (bookId) => {
+    const handleBookClick = (bookId) => {
         router.push(`/player/${bookId}`);
     };
 
     return (
-        <div className={clsx("flex min-h-screen", )}>
+        <div className={clsx("flex min-h-screen")}>
             <div className="flex flex-col flex-1">
                 {" "}
                 {/* Container */}
@@ -65,8 +79,7 @@ const book =
                                     />
                                 </div>
                                 <div>
-                                    <FiMic className="inline" />{" "}
-                                    {book.type}
+                                    <FiMic className="inline" /> {book.type}
                                 </div>
                                 <div>
                                     <HiOutlineLightBulb className="inline" />{" "}
@@ -77,20 +90,25 @@ const book =
                                 <br />
                             </div>
                             <div>
-                                <button onClick={() => handleBookClick(bookId)} className="bg-black text-white p-4 m-auto rounded-2xl w-30 mr-4">
+                                <button
+                                    onClick={() => handleBookClick(bookId)}
+                                    className="bg-black text-white p-4 m-auto rounded-2xl w-30 mr-4"
+                                >
                                     {" "}
                                     Read{" "}
                                 </button>{" "}
-                                <button onClick={() => handleBookClick(bookId)} className="bg-black text-white p-4 m-auto rounded-2xl w-30 ml-4">
+                                <button
+                                    onClick={() => handleBookClick(bookId)}
+                                    className="bg-black text-white p-4 m-auto rounded-2xl w-30 ml-4"
+                                >
                                     {" "}
                                     Listen{" "}
                                 </button>
                             </div>
                             <div className="pt-4 pb-4 font-bold text-blue-500">
-                                <div
-                                    className="mt-2 bg-blue-500 text-white px-3 py-1 rounded">
-                                    <MdBookmarkBorder className="inline"/>
-                                    <AddToLibrary book={book}/>
+                                <div className="mt-2 bg-blue-500 text-white px-3 py-1 rounded">
+                                    <MdBookmarkBorder className="inline" />
+                                    <AddToLibrary book={book} />
                                 </div>
                             </div>
                             <h4 className="font-bold mb-4">What's it about?</h4>
