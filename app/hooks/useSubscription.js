@@ -10,7 +10,6 @@ import { useAuth } from "@/app/context/AuthContext";
  */
 export function useSubscription() {
   const { user, loading } = useAuth();
-  console.log(user)
 
   return { 
     user,

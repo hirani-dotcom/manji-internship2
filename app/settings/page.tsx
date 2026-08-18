@@ -16,20 +16,20 @@ export default function SettingsPage() {
       <div><span className="font-bold">Email: </span>{user?.email}</div>
       <div className="my-4">
         <h2 className="font-semibold">Your Subscription Plan</h2>
-        {subscription === "none" && (
+        {subscription === "None" && (
           <div className="text-red-500 font-semibold italic">
             It appears that you do not have an active subscription.
             <a className="bg-blue-400 rounded-full p-2 text-white ml-4" href='/choose-plan'>Buy a plan</a>
           </div>
         )}
-        {subscription === "premium" && (
+        {subscription === "Premium" && (
           <div className="text-blue-400 font-semibold italic">
           <p className="capitalize">{subscription}</p>
             You are on our basic plan. You do not have access to premium content
             <a className="bg-blue-400 rounded-full p-2 text-white ml-4" href='/choose-plan'>Upgrade my plan</a>
           </div>
         )}
-        {subscription === "pro" && (
+        {subscription === "Premium Plus" && (
           <div className="text-green-500 font-semibold italic">
           <p className="capitalize">{subscription}</p>
             Congratulations you are on our best plan.
