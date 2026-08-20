@@ -1,11 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { auth, db } from "@/app/lib/firebase";
-import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
+import { db } from "@/app/lib/firebase";
+import {
+    collection,
+    onSnapshot,
+    query,
+    orderBy,
+    getDocs,
+    where,
+} from "firebase/firestore";
 import { useBooks } from "@/app/context/BookContext";
 import Link from "next/link";
-import { MdBookmark, MdOutlineStarBorder } from "react-icons/md";
+import { MdOutlineStarBorder } from "react-icons/md";
 import { FiClock } from "react-icons/fi";
 import TimeDisplay from "@/components/TimeDisplay";
 import { useAuth } from "../context/AuthContext";
@@ -14,60 +21,92 @@ import { useRouter } from "next/navigation";
 export default function MyLibraryPage() {
     const [firestoreBooks, setFirestoreBooks] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [currUser, setCurrUser] = useState(auth.currentUser);
-    const {user} = useAuth();
+
+    // 1. Destructure the custom synchronized user data object from context
+    const { user } = useAuth();
     const router = useRouter();
     const {
         selectedBook = [],
         recommendedBooks = [],
         suggestedBooks = [],
     } = useBooks();
-    
+
+    // 2. Fetch the library collection based on email query records instead of strict auth UIDs
     useEffect(() => {
-        const unsubscribeAuth = auth.onAuthStateChanged((currentUser) => {
-            setCurrUser(currentUser);
-            if (!currentUser) setLoading(false);
-        });
-        return () => unsubscribeAuth();
-    }, []);
+        // If the AuthContext hasn't fully loaded the user profile or email yet, wait.
+        if (!user || !user.email) return;
 
-    // Fetch simple library records from Firestore
-    useEffect(() => {
-        if (!currUser) return;
+        let unsubscribeLibrary = null;
 
-        const libraryRef = collection(db, "users", currUser.uid, "library");
-        const q = query(libraryRef, orderBy("addedAt", "desc"));
+        // Async setup function to locate the correct document ID via email matching
+        const setupLibraryListener = async () => {
+            try {
+                const usersRef = collection(db, "users");
+                const qUser = query(usersRef, where("email", "==", user.email));
+                const userSnapshot = await getDocs(qUser);
 
-        const unsubscribeLibrary = onSnapshot(
-            q,
-            (snapshot) => {
-                const list = snapshot.docs.map((doc) => ({
-                    id: doc.id,
-                    ...doc.data(),
-                }));
+                if (!userSnapshot.empty) {
+                    // Grab the active Firestore Document ID (this works regardless of shifting UIDs)
+                    const actualDocId = userSnapshot.docs[0].id;
 
-                setFirestoreBooks(list);
+                    const libraryRef = collection(
+                        db,
+                        "users",
+                        actualDocId,
+                        "library",
+                    );
+                    const qLibrary = query(
+                        libraryRef,
+                        orderBy("addedAt", "desc"),
+                    );
+
+                    unsubscribeLibrary = onSnapshot(
+                        qLibrary,
+                        (snapshot) => {
+                            const list = snapshot.docs.map((doc) => ({
+                                id: doc.id,
+                                ...doc.data(),
+                            }));
+                            setFirestoreBooks(list);
+                            setLoading(false);
+                        },
+                        (error) => {
+                            console.error("Library snapshot failed:", error);
+                            setLoading(false);
+                        },
+                    );
+                } else {
+                    setLoading(false);
+                }
+            } catch (err) {
+                console.error("Error setting up library query:", err);
                 setLoading(false);
-            },
-            () => setLoading(false),
-        );
+            }
+        };
 
-        return () => unsubscribeLibrary();
-    }, [currUser]);
-    
+        setupLibraryListener();
+
+        // Clean up real-time listener when unmounting
+        return () => {
+            if (unsubscribeLibrary) unsubscribeLibrary();
+        };
+    }, [user]);
+
     const hasAccess =
-    user &&
-    user.subscribed &&
-    ["Premium", "Premium Plus"].includes(user.subscribed);
-        
+        user &&
+        user.subscribed &&
+        ["Premium", "Premium Plus"].includes(user.subscribed);
+
     useEffect(() => {
-    if (!hasAccess) {
-      router.replace("/plan-required");
-    }
-  }, [hasAccess, router]);
-    
-  if (!hasAccess) return null;
-  
+        // Stop loading state if there's no user to prevent infinite loading screens
+        if (user === null) {
+            setLoading(false);
+        }
+
+        if (!loading && !hasAccess) {
+            router.replace("/plan-required");
+        }
+    }, [hasAccess, loading, router, user]);
 
     if (loading) {
         return (
@@ -79,12 +118,16 @@ export default function MyLibraryPage() {
         );
     }
 
-        return (
+    if (!hasAccess) return null;
+
+    return (
         <div className="min-h-screen bg-gray-50 p-6 md:p-12">
             <div className="max-w-6xl mx-auto">
                 <header className="mb-8 flex items-center gap-3">
                     <h1 className="text-3xl font-bold text-gray-900">
-                        {user.displayName}'s Library
+                        {user?.displayName
+                            ? `${user.displayName}'s Library`
+                            : "Your Library"}
                     </h1>
                     <p className="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded-full ml-2">
                         {firestoreBooks.length} Items
@@ -113,8 +156,8 @@ export default function MyLibraryPage() {
                                 suggestedBooks.find(
                                     (b) => b.id === firestoreItem.id,
                                 ) ||
-                                (selectedBook[0]?.id === firestoreItem.id
-                                    ? selectedBook[0]
+                                (selectedBook?.id === firestoreItem.id
+                                    ? selectedBook
                                     : null);
 
                             const displayBook = {
@@ -138,9 +181,8 @@ export default function MyLibraryPage() {
                                     className="group bg-white border border-gray-200 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all flex flex-col justify-between overflow-hidden"
                                 >
                                     <div className="flex flex-col gap-3">
-                                        {/* Render cover image if it exists inside Context */}
                                         {displayBook.imageLink && (
-                                            <div className="w-full aspect-ratio: 3/4 bg-gray-100 rounded-xl overflow-hidden mb-2 relative">
+                                            <div className="w-full aspect-[3/4] bg-gray-100 rounded-xl overflow-hidden mb-2 relative">
                                                 <img
                                                     src={displayBook.imageLink}
                                                     alt={displayBook.title}
@@ -148,7 +190,6 @@ export default function MyLibraryPage() {
                                                 />
                                             </div>
                                         )}
-
                                         <div>
                                             <h3 className="font-bold text-base text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2 leading-tight">
                                                 {displayBook.title}
@@ -157,8 +198,7 @@ export default function MyLibraryPage() {
                                                 {displayBook.author}
                                             </p>
                                         </div>
-
-                                        <div className="flex flex-row md:flex-col xs:items-center justify-between gap-1 mt-2 text-xs font-semibold text-gray-600">
+                                        <div className="flex flex-row md:flex-col justify-between gap-1 mt-2 text-xs font-semibold text-gray-600">
                                             {displayBook.averageRating && (
                                                 <div className="flex items-center gap-1 text-amber-600">
                                                     <MdOutlineStarBorder className="text-sm" />
@@ -170,7 +210,8 @@ export default function MyLibraryPage() {
                                                     </span>
                                                 </div>
                                             )}
-                                            {displayBook?.audioLink?.length && (
+                                            {displayBook?.audioLink?.length >
+                                                0 && (
                                                 <div className="flex items-center gap-1 text-amber-600">
                                                     <FiClock className="text-sm" />
                                                     <TimeDisplay

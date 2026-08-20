@@ -14,16 +14,30 @@ import { TfiMarkerAlt } from "react-icons/tfi";
 import { useAuth } from "@/app/context/AuthContext";
 import { useSidebar } from "@/app/context/SidebarContext";
 import clsx from "clsx";
-import { usePathname } from "next/navigation";
 import { useTextSize } from "@/app/context/TextSizeContext";
-import { useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
 
 export default function Sidebar() {
     const { isOpen, close } = useSidebar();
     const { user, logout } = useAuth();
     const pathname = usePathname();
+    const router = useRouter();
     const firstSegment = pathname.split("/")[1] || "";
-    const {textSize, setTextSize} = useTextSize();
+    const { textSize, setTextSize } = useTextSize();
+
+    const handleLogoutClick = async (e: React.MouseEvent) => {
+        e.preventDefault();
+        try {
+            if (typeof logout === "function") {
+                await logout();
+            }
+            sessionStorage.setItem("explicitly_logged_out", "true");
+            router.refresh();
+            router.push("/");
+        } catch (error) {
+            console.error("Logout failed:", error);
+        }
+    };
 
     const handleTextSize = (size: string) => {
         setTextSize(size as any);
@@ -116,13 +130,12 @@ export default function Sidebar() {
                             <MdOutlineHelpOutline className="inline text-2xl" />{" "}
                             Help & Support
                         </a>
-                        <Link
-                            href="/"
+                        <button
+                            onClick={handleLogoutClick}
                             className="block hover:bg-gray-400 p-2 rounded"
-                            onClick={() => logout}
                         >
                             <IoExitOutline className="inline" /> Log Out
-                        </Link>
+                        </button>
                     </div>
                 </nav>
             </aside>

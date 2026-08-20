@@ -1,12 +1,10 @@
 "use client";
 
-import React from "react";
 import { IoDocumentTextSharp } from "react-icons/io5";
 import { RiPlantFill } from "react-icons/ri";
 import { FaHandshake } from "react-icons/fa";
 import PlanSelector from "@/components/PlanSelector";
 import FAQData from "@/components/FAQData";
-import { useState, useEffect } from "react";
 
 export default function page() {
     return (

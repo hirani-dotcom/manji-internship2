@@ -18,26 +18,91 @@ export default function BookPage() {
     const params = useParams();
     const { bookId } = params;
     const router = useRouter();
-    const { user, isSubscribed } = useAuth();
-    const { selectedBook, recommendedBooks, suggestedBooks } = useBooks();
+
+    const { user, loading: authLoading } = useAuth();
+    const {
+        selectedBook,
+        recommendedBooks,
+        suggestedBooks,
+        loading: booksLoading,
+    } = useBooks();
+
+    const isPageLoading = authLoading || booksLoading;
+
     const book =
         recommendedBooks.find((b) => b.id === bookId) ||
         suggestedBooks.find((b) => b.id === bookId) ||
         selectedBook.find((b) => b.id === bookId);
 
-        const proAccess =
-        user &&
-        user.subscribed &&
-        ["Premium Plus"].includes(user.subscribed);
-        
+    const proAccess =
+        user && user.subscribed && ["Premium Plus"].includes(user.subscribed);
+
     useEffect(() => {
-        if (!proAccess) {
+        if (!isPageLoading && !proAccess) {
             router.push("/plan-required");
         }
-    }, [proAccess, router]);
+    }, [proAccess, router, isPageLoading]);
+
+    if (isPageLoading) {
+        return (
+            <div className="flex min-h-screen">
+                <div className="flex flex-col flex-1">
+                    <main className="flex-col max-w-svw m-auto flex gap-4 text-center w-full p-4">
+                        <div className="flex flex-row justify-between gap-6">
+                            {/* Left Column Skeleton */}
+                            <div className="basis-3/4 text-left animate-pulse">
+                                {/* Title and Metadata */}
+                                <div className="h-9 w-2/3 bg-gray-200 rounded mb-4"></div>
+                                <div className="h-5 w-1/3 bg-gray-200 rounded mb-4"></div>
+                                <div className="h-7 w-1/2 bg-gray-200 rounded mb-4"></div>
+
+                                <div className="border-t-2 border-gray-200 my-4"></div>
+
+                                {/* Specs Grid */}
+                                <div className="grid grid-cols-2 grid-rows-2 gap-4 mt-4 mb-4">
+                                    <div className="h-5 w-24 bg-gray-200 rounded"></div>
+                                    <div className="h-5 w-24 bg-gray-200 rounded"></div>
+                                    <div className="h-5 w-24 bg-gray-200 rounded"></div>
+                                    <div className="h-5 w-24 bg-gray-200 rounded"></div>
+                                </div>
+
+                                <div className="border-t-2 border-gray-200 my-4"></div>
+
+                                {/* Action Buttons */}
+                                <div className="flex gap-4">
+                                    <div className="h-14 w-30 bg-gray-200 rounded-2xl"></div>
+                                    <div className="h-14 w-30 bg-gray-200 rounded-2xl"></div>
+                                </div>
+
+                                {/* Library button */}
+                                <div className="h-8 w-44 bg-gray-200 rounded my-4"></div>
+
+                                {/* Description sections */}
+                                <div className="h-5 w-32 bg-gray-200 rounded mb-4 mt-6"></div>
+                                <div className="flex gap-4 mb-4">
+                                    <div className="h-10 w-20 bg-gray-200 rounded-lg"></div>
+                                    <div className="h-10 w-20 bg-gray-200 rounded-lg"></div>
+                                </div>
+                                <div className="space-y-2">
+                                    <div className="h-4 w-full bg-gray-200 rounded"></div>
+                                    <div className="h-4 w-full bg-gray-200 rounded"></div>
+                                    <div className="h-4 w-5/6 bg-gray-200 rounded"></div>
+                                </div>
+                            </div>
+
+                            {/* Right Column Skeleton (Book Art Placement) */}
+                            <div className="basis-1/4 animate-pulse flex justify-end">
+                                <div className="w-50 h-75 bg-gray-200 rounded-lg mt-1"></div>
+                            </div>
+                        </div>
+                    </main>
+                </div>
+            </div>
+        );
+    }
 
     if (!proAccess) return null;
-    
+
     if (!book) {
         return <p className="p-6 text-red-600">Book Not Found.</p>;
     }

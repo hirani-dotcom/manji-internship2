@@ -1,56 +1,86 @@
 "use client";
 
 import { ReactNode, createContext, useContext, useEffect, useState } from "react";
-import { User, onAuthStateChanged } from "firebase/auth";
+import { User, onAuthStateChanged, signOut as firebaseSignOut } from "firebase/auth";
 import { auth, db } from "@/app/lib/firebase";
-import { doc, onSnapshot } from "firebase/firestore";
+import { doc, collection, query, where, onSnapshot } from "firebase/firestore";
 
-interface AuthContextType {
-  user: (User & { subscribed?: string }) | null;
-  loading: boolean;
-  logout: boolean;
+interface CustomUserFields {
+  subscribed?: string;
+  subscriptionUpdatedAt?: string;
+  displayName?: string | null;
+  email?: string | null;
 }
 
-const AuthContext = createContext<AuthContextType>({
-  user: null,
-  loading: true,
-  logout: true,
-});
+type CombinedUser = User & CustomUserFields;
+
+interface AuthContextType {
+  user: CombinedUser | null;
+  loading: boolean;
+  logout: () => Promise<void>;
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<AuthContextType["user"]>(null);
+  const [user, setUser] = useState<CombinedUser | null>(null);
   const [loading, setLoading] = useState(true);
-  const [logout, setLogout] = useState(true);
 
-  useEffect(() => {
-    // Listen for Firebase Auth state changes
-    const unsubscribeAuth = onAuthStateChanged(auth, (firebaseUser) => {
-      if (firebaseUser) {
-        // Listen to Firestore user document for subscription updates
-        const userRef = doc(db, "users", firebaseUser.uid);
-        const unsubscribeFirestore = onSnapshot(userRef, (docSnap) => {
-          if (docSnap.exists()) {
-            setUser({
-              ...firebaseUser,
-              ...docSnap.data(), // Merge Firestore fields like subscription
-            });
-          } else {
-            setUser(firebaseUser); // No Firestore doc yet
-          }
-          setLoading(false);
-          setLogout(false);
-        });
+  const logout = async () => {
+    try {
+      await firebaseSignOut(auth);
+    } catch (error) {
+      console.error("Error logging out:", error);
+    }
+  };
 
-        return () => unsubscribeFirestore();
-      } else {
-        setUser(null);
+useEffect(() => {
+  let unsubscribeFirestore: (() => void) | null = null;
+
+  const unsubscribeAuth = onAuthStateChanged(auth, (firebaseUser) => {
+    if (unsubscribeFirestore) {
+      unsubscribeFirestore();
+      unsubscribeFirestore = null;
+    }
+
+    if (firebaseUser && firebaseUser.email) {
+      // 2. Query the users collection by email instead of strict UID
+      const usersRef = collection(db, "users");
+      const q = query(usersRef, where("email", "==", firebaseUser.email));
+      
+      unsubscribeFirestore = onSnapshot(q, (querySnapshot) => {
+        if (!querySnapshot.empty) {
+          // Grab the first document that matches this email address
+          const docSnap = querySnapshot.docs[0];
+          const data = docSnap.data();
+          
+          const mergedUser: CombinedUser = Object.assign(firebaseUser, {
+            subscribed: data.subscribed,
+            subscriptionUpdatedAt: data.subscriptionUpdatedAt,
+            displayName: data.displayName || firebaseUser.displayName || "",
+          });
+
+          setUser(mergedUser);
+        } else {
+          // Fallback if no firestore document exists yet
+          setUser(firebaseUser as CombinedUser);
+        }
         setLoading(false);
-        setLogout(true);
-      }
-    });
+      }, (error) => {
+        console.error("Firestore snapshot error:", error);
+        setLoading(false);
+      });
+    } else {
+      setUser(null);
+      setLoading(false);
+    }
+  });
 
-    return () => unsubscribeAuth();
-  }, []);
+  return () => {
+    unsubscribeAuth();
+    if (unsubscribeFirestore) unsubscribeFirestore();
+  };
+}, []);
 
   return (
     <AuthContext.Provider value={{ user, loading, logout }}>
@@ -59,4 +89,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
+};

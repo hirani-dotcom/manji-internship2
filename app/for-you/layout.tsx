@@ -6,6 +6,7 @@ import Sidebar from "@/components/Sidebar";
 import Header from "@/components/Header";
 import { SidebarProvider, useSidebar } from "../context/SidebarContext";
 import clsx from "clsx";
+import { AuthProvider } from "@/app/context/AuthContext";
 
 const robotoSans = Roboto({
     variable: "--font-robot-sans",
@@ -46,7 +47,9 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
 export default function Layout({ children }: { children: React.ReactNode }) {
     return (
         <SidebarProvider>
+            <AuthProvider>
             <LayoutContent>{children}</LayoutContent>
+        </AuthProvider>
         </SidebarProvider>
     );
 }

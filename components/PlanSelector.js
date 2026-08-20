@@ -2,8 +2,9 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { useAuth } from "@/app/context/AuthContext";
-import { doc, updateDoc } from "firebase/firestore";
+import { doc, updateDoc, setDoc } from "firebase/firestore";
 import { db } from "@/app/lib/firebase";
+import { useRouter } from "next/navigation";
 
 export default function PlanSelector() {
     const plans = useMemo(
@@ -20,10 +21,17 @@ export default function PlanSelector() {
                 price: "$9.99/month",
                 description: "No trial period",
             },
+            {
+                id: "Basic",
+                name: "Basic",
+                price: "Free",
+                description: "Restricted access",
+            },
         ],
         [],
     );
 
+    const router = useRouter();
     const { user, loading } = useAuth();
     const [selectedPlan, setSelectedPlan] = useState("");
 
@@ -44,6 +52,7 @@ export default function PlanSelector() {
             console.warn("No plan selected.");
             return;
         }
+
         if (!user?.uid) {
             console.error("No authenticated user found.");
             return;
@@ -51,10 +60,26 @@ export default function PlanSelector() {
 
         try {
             const userRef = doc(db, "users", user.uid);
-            await updateDoc(userRef, {
-                subscribed: selectedPlan,
-                subscriptionUpdatedAt: new Date().toISOString(),
-            });
+
+            await setDoc(
+                userRef,
+                {
+                    subscribed: selectedPlan,
+                    subscriptionUpdatedAt: new Date().toISOString(),
+                    displayName: user.displayName || "",
+                },
+                { merge: true },
+            );
+
+            console.log("Subscription and display name successfully saved!");
+
+            const previousPage = document.referrer;
+
+            if (previousPage && previousPage.includes(window.location.origin)) {
+                router.push(previousPage);
+            } else {
+                router.push("/");
+            }
         } catch (error) {
             console.error("Error updating subscription:", error);
         }
@@ -68,7 +93,7 @@ export default function PlanSelector() {
         <div className="w-125 space-y-4 mt-8">
             {/* Subscription status */}
             {user.subscribed &&
-                (user.subscribed === "None" ? (
+                (user.subscribed === "Basic" ? (
                     <p className="text-red-400 font-bold">
                         You have no subscription. Please consider the following
                         options.
@@ -138,15 +163,19 @@ export default function PlanSelector() {
             >
                 {loading
                     ? "Processing..."
-                    : selectedPlan === "premium"
-                      ? "Start your first month"
-                      : "Start your 7-day free trial"}
+                    : selectedPlan === "Basic"
+                      ? "Choose Premium or Premium Plus"
+                      : selectedPlan === "Premium"
+                        ? "Start your first month"
+                        : "Start your 7-day free trial"}
             </button>
             {/* Info message */}
             <p className="mt-2 text-sm text-gray-600">
-                {selectedPlan === "premium"
-                    ? "30-day money back guarantee, no questions asked."
-                    : "Cancel your trial at any time before it ends, and you won’t be charged."}
+                {selectedPlan === "Basic"
+                    ? ""
+                    : selectedPlan === "Premium"
+                      ? "30-day money back guarantee, no questions asked."
+                      : "Cancel your trial at any time before it ends, and you won’t be charged."}
             </p>
         </div>
     );
