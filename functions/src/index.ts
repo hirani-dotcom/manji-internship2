@@ -6,7 +6,6 @@ admin.initializeApp();
 
 export const createUserProfile = functions.auth.user().onCreate(
   async (user: UserRecord) => {
-    console.log("New user:", user.uid);
 
     await admin.firestore().collection("users").doc(user.uid).set({
       email: user.email || null,

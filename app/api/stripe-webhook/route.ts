@@ -64,8 +64,6 @@ export async function POST(req: Request) {
             },
             { merge: true }
           );
-
-          console.log(`✅ New subscription for user ${uid}: ${subscriptionLevel}`);
         }
         break;
       }
@@ -93,13 +91,9 @@ export async function POST(req: Request) {
             { merge: true }
           );
 
-          console.log(`🔄 Subscription renewed for user ${userDoc.id}`);
         }
         break;
       }
-
-      default:
-        console.log(`ℹ️ Unhandled event type: ${event.type}`);
     }
 
     return NextResponse.json({ received: true });

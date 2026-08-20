@@ -71,8 +71,6 @@ export default function PlanSelector() {
                 { merge: true },
             );
 
-            console.log("Subscription and display name successfully saved!");
-
             const previousPage = document.referrer;
 
             if (previousPage && previousPage.includes(window.location.origin)) {

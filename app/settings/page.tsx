@@ -1,19 +1,36 @@
 "use client";
-
-import { useSubscription } from "@/app/hooks/useSubscription";
+import LibrarySkeleton from "@/components/LibrarySkeleton";
 import { useAuth } from "../context/AuthContext";
 
 export default function SettingsPage() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
 
-  console.log(user?.email, user?.uid, user )
+  if (loading) {
+  return (
+    <div className="p-6 animate-pulse">
+      <h1 className="text-2xl h-4 font-bold my-4">Settings</h1>
+      <div className="border border-gray-300"></div>
+      <div className="text-xl h-4 font-bold my-4">Account Details
+      </div>
+      <div><span className="h-4 font-bold">Name: 
+        <p className="bg-gray-400 h-4 w-36 animate-pulse"></p></span></div>
+      <div><span className="h-4font-bold">Email: 
+        <p className="bg-gray-400 h-4 w-36 animate-pulse"></p></span></div>
+      <div className="my-4">
+        <h2 className="h-8 font-semibold">Your Subscription Plan</h2>
+                <p className="bg-gray-400 h-4 w-36 animate-pulse"></p>
+              </div>
+    </div>
+  );;
+}
+
 
    return (
     <div className="p-6">
       <h1 className="text-2xl font-bold my-4">Settings</h1>
       <div className="border border-gray-300"></div>
       <div className="text-xl font-bold my-4">Account Details</div>
-      <div><span className="font-bold">Name: </span>{user?.displayName}</div>
+      <div><span className="font-bold">Name: </span>{user?.displayName ? user?.displayName : "No Name"}</div>
       <div><span className="font-bold">Email: </span>{user?.email}</div>
       <div className="my-4">
         <h2 className="font-semibold">Your Subscription Plan</h2>

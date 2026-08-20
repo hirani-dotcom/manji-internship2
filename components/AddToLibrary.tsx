@@ -1,17 +1,22 @@
 "use client";
 
 import { auth, db } from "@/app/lib/firebase";
-import { doc, setDoc, deleteDoc, onSnapshot, writeBatch,
-  getDoc, collection, getDocs  } from "firebase/firestore";
+import { doc, deleteDoc, onSnapshot, writeBatch, getDoc, collection, getDocs } from "firebase/firestore";
 import { useState, useEffect } from "react";
+import LibrarySkeleton from '@/components/LibrarySkeleton';
 
-export default function AddToLibrary({ book }) {
+interface Book {
+  id: string;
+  title?: string;
+  author?: string;
+}
+
+export default function AddToLibrary({ book }: { book: Book }) {
   const [loading, setLoading] = useState(false);
   const [isInLibrary, setIsInLibrary] = useState(false);
   const [checking, setChecking] = useState(true);
   const [subscribed, setSubscribed] = useState("none");
 
-  // Listen to real-time library status for the authenticated user
   useEffect(() => {
     const user = auth.currentUser;
     if (!user || !book?.id) {
@@ -26,7 +31,6 @@ export default function AddToLibrary({ book }) {
       setChecking(false);
     });
 
-    // Fetch subscription status once
     const fetchSubscription = async () => {
       const userDoc = await getDoc(doc(db, "users", user.uid));
       if (userDoc.exists()) {
@@ -40,7 +44,7 @@ export default function AddToLibrary({ book }) {
 
   if (!book || !book.id || checking) return null;
 
-  const handleToggleLibrary = async (e) => {
+  const handleToggleLibrary = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
     
     const user = auth.currentUser;
@@ -48,43 +52,36 @@ export default function AddToLibrary({ book }) {
 
     setLoading(true);
 
-    // References for both documents
     const userRef = doc(db, "users", user.uid);
     const bookRef = doc(db, "users", user.uid, "library", book.id);
 
     try {
       if (isInLibrary) {
-        // Remove item from library sub-collection
         await deleteDoc(bookRef);
         alert("Removed from your library.");
       } else {
-        // Restrict free users to no books
         if (subscribed === "none") {
           const librarySnap = await getDocs(collection(db, "users", user.uid, "library"));
           if (librarySnap.size >= 0) {
             setLoading(false);
-            return alert("Free plan limit reached. Upgrade to add  books.");
+            return alert("Free plan limit reached. Upgrade to add books.");
           }
         }
 
-        // Use an atomic batch to ensure BOTH user document and book document succeed together
         const batch = writeBatch(db);
 
-        // 1. Create or update the root user record if missing (does not overwrite existing fields)
         batch.set(userRef, {
           email: user.email || "",
-          createdAt: new Date(), // This will only merge or update if not set, or you can use serverTimestamp()
+          createdAt: new Date(), 
           lastActive: new Date()
         }, { merge: true });
 
-        // 2. Create the book sub-collection record
         batch.set(bookRef, {
           title: book.title || "Untitled Book",
           author: book.author || "Unknown Author",
           addedAt: new Date(),
         }, { merge: true });
 
-        // Commit both operations together
         await batch.commit();
         alert("Added to your library!");
       }
@@ -95,6 +92,10 @@ export default function AddToLibrary({ book }) {
       setLoading(false);
     }
   };
+
+  if (loading) {
+  return (<span className="animate-pulse">{isInLibrary ? " Adding To Your Library" : " Removing From Your Library"}</span>);
+}
 
   return (
     <button

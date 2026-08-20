@@ -89,7 +89,6 @@ export default function Header() {
         router.push(`/for-you/book/${bookId}`);
     };
 
-    if (loading) return <p className="text-center mt-6">Loading books...</p>;
     if (error) return <p className="text-center mt-6 text-red-500">{error}</p>;
 
     return (

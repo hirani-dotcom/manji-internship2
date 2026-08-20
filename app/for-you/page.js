@@ -1,20 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import "../globals.css";
 import { useAuth } from "@/app/context/AuthContext";
 import { useBooks } from "@/app/context/BookContext";
 import { useSidebar } from "../context/SidebarContext";
-import Suggested from "../for-you/Suggested";
-import Recommended from "../for-you/Recommended";
-import Selected from "../for-you/Selected";
+import BookCarousel from "@/components/BookCarousel";
 import clsx from "clsx";
 import { useRouter } from "next/navigation";
 
 function SkeletonCard() {
   return (
     <div className="bg-gray-100 rounded-lg shadow p-4 animate-pulse w-full">
-      <div className="flex justify-end"><div className="h-5 w-16 bg-gray-300 rounded-full"></div></div>
+      <div className="flex justify-end">
+        <div className="h-5 w-16 bg-gray-300 rounded-full"></div>
+      </div>
       <div className="mt-2 h-40 w-full bg-gray-300 rounded"></div>
       <div className="mt-4 h-5 w-3/4 bg-gray-300 rounded"></div>
       <div className="mt-2 h-4 w-1/2 bg-gray-300 rounded"></div>
@@ -27,24 +26,23 @@ function SkeletonCard() {
   );
 }
 
-export default function page() {
-    const {user} = useAuth();
-    const { loading, error } = useBooks();
-    const { isOpen, open, close, toggle } = useSidebar();
-    const router = useRouter();
+export default function ForYouPage() {
+  const { user } = useAuth();
+  const { loading, error, selectedBook, recommendedBooks, suggestedBooks } = useBooks();
+  const { isOpen, open, close, toggle } = useSidebar();
+  const router = useRouter();
 
-    if (error) return <div>Error: {error}</div>;
+  if (error) return <div className="p-6 text-red-600">Error: {error}</div>;
 
-      if (loading) {
+  if (loading) {
     return (
-      <div className={clsx("flex min-h-screen")}>
+      <div className={clsx("flex min-h-screen bg-gray-50")}>
         <div className="flex flex-col flex-1">
-          <main className="flex flex-col max-w-svw m-auto gap-12 p-4 w-full">
-            
-            {/* Selected Book Skeleton (Single Block Layout) */}
+          <main className="flex flex-col max-w-6xl mx-auto gap-12 p-6 w-full">
+            {/* Selected Book Skeleton */}
             <div className="animate-pulse">
               <div className="h-8 w-48 bg-gray-300 rounded mb-4"></div>
-              <div className="w-150 h-32 bg-orange-100 rounded-lg"></div>
+              <div className="w-full max-w-2xl h-32 bg-gray-200 rounded-2xl"></div>
             </div>
 
             {/* Recommended Section Carousel Skeletons */}
@@ -52,7 +50,9 @@ export default function page() {
               <div className="h-8 w-56 bg-gray-300 rounded mb-1 animate-pulse"></div>
               <div className="h-4 w-40 bg-gray-200 rounded mb-8 animate-pulse"></div>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)}
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <SkeletonCard key={i} />
+                ))}
               </div>
             </div>
 
@@ -61,35 +61,52 @@ export default function page() {
               <div className="h-8 w-44 bg-gray-300 rounded mb-1 animate-pulse"></div>
               <div className="h-4 w-32 bg-gray-200 rounded mb-8 animate-pulse"></div>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)}
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <SkeletonCard key={i} />
+                ))}
               </div>
             </div>
-
           </main>
         </div>
       </div>
     );
   }
 
-  if (error) return <div>Error: {error}</div>;
-  
-    return (
-        <div className={clsx("flex min-h-screen")}>
-            <div className="flex flex-col flex-1">
-                {" "}
-                {/* Container */}
-                <main className="flex flex-col max-w-svw m-auto gap-4">
-                    <div>
-                        <Selected />
-                    </div>
-                    <div>
-                        <Recommended />
-                    </div>
-                    <div>
-                        <Suggested />
-                    </div>
-                </main>
-            </div>
-        </div>
-    );
+  // Normalize selectedBook in case it is structured as an object instead of an array
+  const safeSelectedBooks = Array.isArray(selectedBook)
+    ? selectedBook
+    : selectedBook
+    ? [selectedBook]
+    : [];
+
+  return (
+    <div className={clsx("flex min-h-screen bg-gray-50")}>
+      <div className="flex flex-col flex-1 py-6 space-y-2">
+        <main className="w-full">
+          
+          {/* 1. Selected for You Section Row */}
+          <BookCarousel 
+            title="Selected Just For You" 
+            subtitle=""
+            books={safeSelectedBooks} 
+          />
+
+          {/* 2. Recommended for You Section Row */}
+          <BookCarousel 
+            title="Recommended For You"  
+            subtitle="We think you will like these"
+            books={recommendedBooks || []} 
+          />
+
+          {/* 3. Suggested for You Section Row */}
+          <BookCarousel 
+            title="Suggested for You"  
+            subtitle="Browse these books"
+            books={suggestedBooks || []} 
+          />
+
+        </main>
+      </div>
+    </div>
+  );
 }

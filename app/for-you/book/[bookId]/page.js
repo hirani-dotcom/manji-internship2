@@ -46,6 +46,7 @@ export default function BookPage() {
     if (isPageLoading) {
         return (
             <div className="flex min-h-screen">
+                <h1>Loading the book page</h1>
                 <div className="flex flex-col flex-1">
                     <main className="flex-col max-w-svw m-auto flex gap-4 text-center w-full p-4">
                         <div className="flex flex-row justify-between gap-6">

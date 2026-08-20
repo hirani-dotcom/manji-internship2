@@ -95,11 +95,9 @@ export default function AuthForm() {
 
         // Wait for all books to fully migrate
         await Promise.all(migrationPromises);
-        console.log(`Migrated ${librarySnapshot.size} books to new library subcollection.`);
 
         // 4. Finally, delete the old main user document safely
         await deleteDoc(doc(db, "users", existingDocId));
-        console.log("Cleaned up duplicate legacy profile record.");
       }
     }
 
