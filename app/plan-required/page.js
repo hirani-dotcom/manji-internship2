@@ -10,7 +10,7 @@ export default function page() {
     useEffect(() => {
         const timer = setTimeout(() => {
             router.push("/choose-plan");
-        }, 4000); // 4 seconds delay
+        }, 3000);
 
         return () => clearTimeout(timer);
     }, [router]);
