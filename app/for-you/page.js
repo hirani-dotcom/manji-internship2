@@ -72,7 +72,6 @@ export default function ForYouPage() {
     );
   }
 
-  // Normalize selectedBook in case it is structured as an object instead of an array
   const safeSelectedBooks = Array.isArray(selectedBook)
     ? selectedBook
     : selectedBook

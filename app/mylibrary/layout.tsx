@@ -22,22 +22,16 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
 
     return (
         <div className="flex min-h-screen">
-            {/* Sidebar */}
             <Sidebar />
 
-            {/* Main content wrapper */}
             <div
                 className={clsx(
                     "flex flex-col flex-1 transition-all duration-300",
-                    // On desktop, shift when sidebar is open
-                    // On mobile, no margin when sidebar is closed
                     isOpen ? "ml-56" : "ml-0"
                 )}
             >
                 <div>
-                {/* Header */}
                 <Header />
-                {/* Scrollable content */}
                 <main className="flex-1 overflow-y-auto p-4 lg:ml-56">{children}</main>
                 </div>
             </div>

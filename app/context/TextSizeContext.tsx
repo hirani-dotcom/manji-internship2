@@ -14,13 +14,11 @@ const TextSizeContext = createContext<TextSizeContextType | undefined>(undefined
 export function TextSizeProvider({ children }: { children: ReactNode }) {
   const [textSize, setTextSize] = useState<TextSize>("text-base");
 
-  // Optional: Load saved size from localStorage
   useEffect(() => {
     const saved = localStorage.getItem("textSize") as TextSize | null;
     if (saved) setTextSize(saved);
   }, []);
 
-  // Optional: Save to localStorage when changed
   useEffect(() => {
     localStorage.setItem("textSize", textSize);
   }, [textSize]);

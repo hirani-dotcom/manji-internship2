@@ -3,7 +3,6 @@ import Stripe from "stripe";
 import { initializeApp, getApps, cert } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
 
-// Initialize Firebase Admin SDK (only once)
 if (!getApps().length) {
   initializeApp({
     credential: cert({
@@ -15,7 +14,6 @@ if (!getApps().length) {
 }
 const db = getFirestore();
 
-// Initialize Stripe
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2026-07-29.dahlia",
 });
@@ -60,7 +58,7 @@ export async function POST(req: Request) {
               subscription: subscriptionLevel,
               subscriptionActive: true,
               subscriptionUpdatedAt: new Date(),
-              stripeCustomerId: session.customer, // store for renewals
+              stripeCustomerId: session.customer,
             },
             { merge: true }
           );
@@ -68,16 +66,12 @@ export async function POST(req: Request) {
         break;
       }
 
-      /**
-       * 2️⃣ Handle subscription renewals
-       */
       case "invoice.payment_succeeded": {
         const invoice = event.data.object as Stripe.Invoice;
         const customerId = invoice.customer as string;
 
         if (!customerId) break;
 
-        // Find user by Stripe customer ID
         const usersRef = db.collection("users");
         const snapshot = await usersRef.where("stripeCustomerId", "==", customerId).get();
 

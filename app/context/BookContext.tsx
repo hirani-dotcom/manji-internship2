@@ -3,7 +3,6 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import api from "@/app/lib/api";
 
-// Define the book type
 export interface Book {
   id: string;
   title: string;
@@ -23,7 +22,6 @@ export interface Book {
   authorDescription: string
 }
 
-// Define context value type
 interface BookContextType {
   selectedBook: Book[];
   recommendedBooks: Book[];
@@ -42,14 +40,13 @@ export const BookProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch books from API
   const fetchBooks = async () => {
     try {
       setLoading(true);
       setError(null);
       const selectedResponse = await api.get<Book[]>("/getBooks?status=selected");
       const recommendedResponse = await api.get<Book[]>("/getBooks?status=recommended"); 
-      const suggestedResponse = await api.get<Book[]>("getBooks?status=suggested")// Adjust endpoint
+      const suggestedResponse = await api.get<Book[]>("getBooks?status=suggested")
       setSelectedBook(selectedResponse.data);
       setRecommendedBooks(recommendedResponse.data);
       setSuggestedBooks(suggestedResponse.data);
@@ -71,7 +68,6 @@ export const BookProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-// Custom hook to use the BookContext
 export const useBooks = (): BookContextType => {
   const context = useContext(BookContext);
   if (!context) {

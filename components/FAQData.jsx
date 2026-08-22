@@ -33,7 +33,7 @@ export default function Home() {
   const handleToggle = (index) => {
     setAnimatingIndex(index);
     setOpenIndex((prev) => (prev === index ? null : index));
-    setTimeout(() => setAnimatingIndex(null), 300); // match animation duration
+    setTimeout(() => setAnimatingIndex(null), 300);
   };
 
   return (

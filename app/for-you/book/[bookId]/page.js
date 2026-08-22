@@ -6,12 +6,12 @@ import { MdBookmarkBorder, MdOutlineStarBorder } from "react-icons/md";
 import { FiClock, FiMic } from "react-icons/fi";
 import { HiOutlineLightBulb } from "react-icons/hi";
 import { useParams } from "next/navigation";
-import TimeDisplay from "@/components/TimeDisplay";
 import { useSidebar } from "../../../context/SidebarContext";
 import clsx from "clsx";
 import AddToLibrary from "@/components/AddToLibrary";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useEffect } from "react";
+import AudioDuration from "@/components/AudioDuration";
 
 export default function BookPage() {
     const { isOpen } = useSidebar();
@@ -26,6 +26,7 @@ export default function BookPage() {
         suggestedBooks,
         loading: booksLoading,
     } = useBooks();
+    const pathname = usePathname();
 
     const isPageLoading = authLoading || booksLoading;
 
@@ -39,7 +40,7 @@ export default function BookPage() {
 
     useEffect(() => {
         if (!isPageLoading && !proAccess) {
-            router.push("/plan-required");
+            router.push(`/choose-plan?redirectTo=${encodeURIComponent(pathname)}`);
         }
     }, [proAccess, router, isPageLoading]);
 
@@ -140,9 +141,7 @@ export default function BookPage() {
                                 </div>
                                 <div>
                                     <FiClock className="inline" />{" "}
-                                    <TimeDisplay
-                                        seconds={book.audioLink.length}
-                                    />
+                                    <AudioDuration audioUrl={book.audioLink} />
                                 </div>
                                 <div>
                                     <FiMic className="inline" /> {book.type}

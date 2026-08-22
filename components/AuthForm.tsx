@@ -78,25 +78,19 @@ export default function AuthForm() {
 
       if (existingDocId !== googleUser.uid) {
         
-        // 2. Fetch all books from the old user's "library" subcollection
         const oldLibraryRef = collection(db, "users", existingDocId, "library");
         const librarySnapshot = await getDocs(oldLibraryRef);
 
-        // 3. Loop through every book and copy it to the new user's "library" subcollection
         const migrationPromises = librarySnapshot.docs.map(async (bookDoc) => {
           const newBookRef = doc(db, "users", googleUser.uid, "library", bookDoc.id);
           const oldBookRef = doc(db, "users", existingDocId, "library", bookDoc.id);
           
-          // Write to new location
           await setDoc(newBookRef, bookDoc.data());
-          // Delete from old location
           await deleteDoc(oldBookRef);
         });
 
-        // Wait for all books to fully migrate
         await Promise.all(migrationPromises);
 
-        // 4. Finally, delete the old main user document safely
         await deleteDoc(doc(db, "users", existingDocId));
       }
     }

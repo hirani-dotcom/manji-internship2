@@ -44,13 +44,11 @@ useEffect(() => {
     }
 
     if (firebaseUser && firebaseUser.email) {
-      // 2. Query the users collection by email instead of strict UID
       const usersRef = collection(db, "users");
       const q = query(usersRef, where("email", "==", firebaseUser.email));
       
       unsubscribeFirestore = onSnapshot(q, (querySnapshot) => {
         if (!querySnapshot.empty) {
-          // Grab the first document that matches this email address
           const docSnap = querySnapshot.docs[0];
           const data = docSnap.data();
           
@@ -62,7 +60,6 @@ useEffect(() => {
 
           setUser(mergedUser);
         } else {
-          // Fallback if no firestore document exists yet
           setUser(firebaseUser as CombinedUser);
         }
         setLoading(false);

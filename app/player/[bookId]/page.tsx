@@ -29,7 +29,6 @@ export default function PlayerPage() {
     const [markingFinished, setMarkingFinished] = useState(false);
     const currentSelected = selectedBook as any;
 
-    // Safely check collections for matching book elements
     const book =
         recommendedBooks.find((b) => b.id === bookId) ||
         suggestedBooks.find((b) => b.id === bookId) ||
@@ -39,7 +38,6 @@ export default function PlayerPage() {
               ? currentSelected
               : null);
     
-    // Handle saving completion status back to Firestore
     const handleMarkAsFinished = async () => {
         if (!user || !user.email) return alert("You must be signed in.");
 
@@ -51,7 +49,6 @@ export default function PlayerPage() {
 
             if (!userSnapshot.empty) {
                 const actualDocId = userSnapshot.docs[0].id;
-                // Reference the book document inside the user's library sub-collection
                 const bookRef = doc(
                     db,
                     "users",

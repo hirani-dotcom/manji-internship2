@@ -1,16 +1,15 @@
 "use client";
 
-import { MdOutlineMenu } from "react-icons/md";
+import { MdOutlineMenu, MdArrowBackIosNew } from "react-icons/md";
 import { FiClock } from "react-icons/fi";
 import { HiMagnifyingGlass } from "react-icons/hi2";
 import "../app/globals.css";
 import { useSidebar } from "@/app/context/SidebarContext";
 import { useState, useRef, useEffect } from "react";
 import { useBooks } from "@/app/context/BookContext";
-import TimeDisplay from "./TimeDisplay";
 import { useRouter } from "next/navigation";
+import AudioDuration from "./AudioDuration";
 
-// debounce function
 function debounce(fn, delay) {
     let timer;
     return (...args) => {
@@ -30,7 +29,6 @@ export default function Header() {
     const { open, close } = useSidebar();
     const router = useRouter();
 
-    // Debounced filtering
     const debouncedFilter = debounce((searchTerm) => {
         if (!searchTerm.trim()) {
             setFilteredBooks([]);
@@ -63,12 +61,10 @@ export default function Header() {
         setIsOpen(true);
     }, 300);
 
-    // Trigger filtering when query changes
     useEffect(() => {
         debouncedFilter(query);
     }, [query, selectedBook || recommendedBooks || suggestedBooks]);
 
-    // Close dropdown & clear search bar when clicking outside
     useEffect(() => {
         function handleClickOutside(event) {
             if (
@@ -77,7 +73,7 @@ export default function Header() {
             ) {
                 setQuery("");
                 setFilteredBooks({});
-                setIsOpen(false); 
+                setIsOpen(false);
             }
         }
         document.addEventListener("mousedown", handleClickOutside);
@@ -93,35 +89,45 @@ export default function Header() {
 
     return (
         <div className="max-w-full mx-auto p-2 relative" ref={containerRef}>
-            <div className="flex relative max-w-md ml-auto">
-                {/* Search Input */}
-                <button className="lg:hidden ml-2" onClick={open}>
-                    <MdOutlineMenu className="h-6 w-6" />
+            <div className="flex flex-1 lg:ml-56">
+                <button
+                    onClick={() => router.back()}
+                    className="flex items-center p-2 rounded-xl text-gray-600 hover:text-black hover:bg-gray-100 transition-all cursor-pointer shrink-0"
+                    aria-label="Go back to previous page"
+                >
+                    <MdArrowBackIosNew className="h-5 w-5" />
+                    Go Back
                 </button>
-                <input
-                    type="text"
-                    placeholder="Search for a book..."
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    className="w-full bg-gray-200 px-4 py-2 text-gray-600 border border-gray-400 rounded-lg focus:outline-none focus:ring focus:ring-blue-400"
-                />
-                {query.length > 0 ? (
-                    <button
-                        type="button"
-                        onClick={() => {
-                            setQuery("");
-                            setFilteredBooks([]);
-                            setIsOpen(false);
-                        }}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-600"
-                    >
-                        ✕
+                <div className="flex relative max-w-md ml-auto">
+                    {/* Search Input */}
+                    <button className="lg:hidden ml-2" onClick={open}>
+                        <MdOutlineMenu className="h-6 w-6" />
                     </button>
-                ) : (
-                    <HiMagnifyingGlass className="inline absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-600" />
-                )}
+                    <input
+                        type="text"
+                        placeholder="Search for a book..."
+                        value={query}
+                        onChange={(e) => setQuery(e.target.value)}
+                        className="w-full bg-gray-200 px-4 py-2 text-gray-600 border border-gray-400 rounded-lg focus:outline-none focus:ring focus:ring-blue-400"
+                    />
+                    {query.length > 0 ? (
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setQuery("");
+                                setFilteredBooks([]);
+                                setIsOpen(false);
+                            }}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-600"
+                        >
+                            ✕
+                        </button>
+                    ) : (
+                        <HiMagnifyingGlass className="inline absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-600" />
+                    )}
+                </div>
             </div>
-            <div className="border-b-2 border-gray-200 w-full my-4"></div>
+            <div className="border-b-2 border-gray-200 w-full lg:ml-56 my-4"></div>
 
             {/* Dropdown Overlay */}
             {isOpen && filteredBooks.length > 0 && (
@@ -151,9 +157,7 @@ export default function Header() {
                                 </div>
                                 <div className="text-sm">
                                     <FiClock className="inline" />{" "}
-                                    <TimeDisplay
-                                        seconds={book.audioLink.length}
-                                    />
+                                    <AudioDuration audioUrl={book.audioLink} />
                                 </div>
                             </div>
                         </div>
@@ -167,6 +171,7 @@ export default function Header() {
                     No books found.
                 </div>
             )}
+            {/* </div> */}
         </div>
     );
 }

@@ -1,9 +1,11 @@
 "use client";
 import LibrarySkeleton from "@/components/LibrarySkeleton";
 import { useAuth } from "../context/AuthContext";
+import { usePathname } from "next/navigation";
 
 export default function SettingsPage() {
   const { user, loading } = useAuth();
+  const pathname = usePathname();
 
   if (loading) {
   return (
@@ -37,14 +39,14 @@ export default function SettingsPage() {
         {user?.subscribed === "Basic" && (
           <div className="text-red-500 font-semibold italic">
             You are on our Basic (Free) plan, with limited access.
-            <a className="bg-blue-400 rounded-full p-2 text-white ml-4" href='/choose-plan'>Buy a plan</a>
+            <a className="bg-blue-400 rounded-full p-2 text-white ml-4" href={`/choose-plan?redirectTo=${encodeURIComponent(pathname)}`}>Buy a plan</a>
           </div>
         )}
         {user?.subscribed === "Premium" && (
           <div className="text-blue-400 font-semibold italic">
           <p className="capitalize">{user?.subscribed}</p>
             You are on our basic plan. You do not have access to premium content
-            <a className="bg-blue-400 rounded-full p-2 text-white ml-4" href='/choose-plan'>Upgrade my plan</a>
+            <a className="bg-blue-400 rounded-full p-2 text-white ml-4" href={`/choose-plan?redirectTo=${encodeURIComponent(pathname)}`}>Upgrade my plan</a>
           </div>
         )}
         {user?.subscribed === "Premium Plus" && (
